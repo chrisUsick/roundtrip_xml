@@ -1,0 +1,62 @@
+<custom-match-points controller-version="004-001-004-000">
+    <custom-match-point>
+        <name>API Calls</name>
+        <business-transaction-name>API Calls</business-transaction-name>
+        <entry-point>PHP_WEB</entry-point>
+        <background>false</background>
+        <enabled>true</enabled>
+        <match-rule>
+            <normal-rule>
+                <enabled>true</enabled>
+                <priority>10</priority>
+                <uri filter-type="STARTSWITH" filter-value="/api/"/>
+                <properties/>
+            </normal-rule>
+        </match-rule>
+    </custom-match-point>
+    <custom-match-point>
+        <name>Browse Diffusion</name>
+        <business-transaction-name>Browse Diffusion</business-transaction-name>
+        <entry-point>PHP_WEB</entry-point>
+        <background>false</background>
+        <enabled>true</enabled>
+        <match-rule>
+            <normal-rule>
+                <enabled>true</enabled>
+                <priority>10</priority>
+                <uri filter-type="STARTSWITH" filter-value="/diffusion/"/>
+                <properties/>
+            </normal-rule>
+        </match-rule>
+    </custom-match-point>
+    <custom-match-point>
+        <name>View Commit</name>
+        <business-transaction-name>View Commit</business-transaction-name>
+        <entry-point>PHP_WEB</entry-point>
+        <background>false</background>
+        <enabled>true</enabled>
+        <match-rule>
+            <normal-rule>
+                <enabled>true</enabled>
+                <priority>10</priority>
+                <uri filter-type="REGEX" filter-value="/^r[A-Z]+/"/>
+                <properties/>
+            </normal-rule>
+        </match-rule>
+    </custom-match-point>
+    <custom-match-point>
+        <name>View Object</name>
+        <business-transaction-name>View Object</business-transaction-name>
+        <entry-point>PHP_WEB</entry-point>
+        <background>false</background>
+        <enabled>true</enabled>
+        <match-rule>
+            <normal-rule>
+                <enabled>true</enabled>
+                <priority>10</priority>
+                <uri filter-type="REGEX" filter-value="/^\/[BDFT][0-9]+/"/>
+                <properties/>
+            </normal-rule>
+        </match-rule>
+    </custom-match-point>
+</custom-match-points>

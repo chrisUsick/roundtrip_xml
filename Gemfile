@@ -1,0 +1,6 @@
+source 'https://rubygems.org'
+gem 'roxml'
+gem 'nokogiri'
+gem 'cleanroom'
+gem 'rspec'
+gem 'nokogiri-diff'
