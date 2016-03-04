@@ -33,7 +33,16 @@ class DslRuntime
 
   end
 
+  def evaluate_raw(dsl, root_class)
+    cleanroom = RootCleanroom.new(fetch(root_class).new, self)
+    cleanroom.evaluate dsl
+
+  end
+
   def fetch_cleanroom(root_class)
     BaseCleanroom.new(fetch(root_class).new, self)
+  end
+  def create_cleanroom(root_class)
+    BaseCleanroom.new(root_class.new, self)
   end
 end

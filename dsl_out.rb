@@ -29,6 +29,17 @@ healthRule do
         operator 'GREATER_THAN'
         conditionExpression ''
         useActiveBaseline 'true'
+        metricExpression do
+          type 'leaf'
+          functionType 'VALUE'
+          value '0'
+          isLiteralExpression 'false'
+          displayName 'null'
+          metricDefinition do
+            type 'LOGICAL_METRIC'
+            logicalMetricName 'Average Response Time (ms)'
+          end
+        end
       end
       condition2 do
         type 'leaf'
@@ -38,6 +49,17 @@ healthRule do
         operator 'GREATER_THAN'
         conditionExpression ''
         useActiveBaseline 'false'
+        metricExpression do
+          type 'leaf'
+          functionType 'VALUE'
+          value '0'
+          isLiteralExpression 'false'
+          displayName 'null'
+          metricDefinition do
+            type 'LOGICAL_METRIC'
+            logicalMetricName 'Calls per Minute'
+          end
+        end
       end
     end
   end
@@ -57,6 +79,17 @@ healthRule do
         operator 'GREATER_THAN'
         conditionExpression ''
         useActiveBaseline 'true'
+        metricExpression do
+          type 'leaf'
+          functionType 'VALUE'
+          value '0'
+          isLiteralExpression 'false'
+          displayName 'null'
+          metricDefinition do
+            type 'LOGICAL_METRIC'
+            logicalMetricName 'Average Response Time (ms)'
+          end
+        end
       end
       condition2 do
         type 'leaf'
@@ -66,6 +99,17 @@ healthRule do
         operator 'GREATER_THAN'
         conditionExpression ''
         useActiveBaseline 'false'
+        metricExpression do
+          type 'leaf'
+          functionType 'VALUE'
+          value '0'
+          isLiteralExpression 'false'
+          displayName 'null'
+          metricDefinition do
+            type 'LOGICAL_METRIC'
+            logicalMetricName 'Calls per Minute'
+          end
+        end
       end
     end
   end

@@ -24,7 +24,7 @@ class DslBuilder
         out += inset + "#{accessor} do\n#{write_attrs attr.sought_type, xml.xpath(selector)[0], inset + '  '}#{inset}end\n"
 
       else
-        xml.xpath(accessor).each do |node|
+        xml.xpath(selector).each do |node|
           out += inset + "#{accessor} do\n#{write_attrs attr.sought_type, node, inset + '  '}#{inset}end\n"
           if inset == ''
             out += "\n"

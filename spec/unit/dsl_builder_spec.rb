@@ -7,8 +7,8 @@ describe 'dsl_builder' do
     runtime.populate_raw xml
     b = DslBuilder.new xml, runtime, :A
     out = b.to_dsl
-    expect(out).to match /b 1/
-    expect(out).to match /c 2/
+    expect(out).to match /b '1'/
+    expect(out).to match /c '2'/
   end
 
   it 'handles nested elements' do
@@ -18,9 +18,9 @@ describe 'dsl_builder' do
     b = DslBuilder.new xml, runtime, :A
     out = b.to_dsl
     expect(out).to match 'b do'
-    expect(out).to match '  ba 1'
-    expect(out).to match '  bb 1.1'
-    expect(out).to match 'd 2'
+    expect(out).to match '  ba \'1\''
+    expect(out).to match '  bb \'1.1\''
+    expect(out).to match 'd \'2\''
   end
 
   it 'handles array elements' do
@@ -29,8 +29,8 @@ describe 'dsl_builder' do
     runtime.populate_raw xml
     b = DslBuilder.new xml, runtime, :A
     out = b.to_dsl
-    expect(out).to match '  foo 1'
-    expect(out).to match '  foo 2'
+    expect(out).to match "  foo '1'"
+    expect(out).to match "  foo '2'"
 
   end
 
@@ -64,5 +64,60 @@ d do
 end
     EXPECTED
     expect(out).to eq(expected)
+  end
+
+  it 'handles attributes' do
+    xml = <<-XML
+<a attr-1="foo">
+  <b attr-2="bar">
+    <c>1</c>
+  </b>
+</a>
+    XML
+    runtime = DslRuntime.new
+    runtime.populate_raw xml
+    b = DslBuilder.new xml, runtime, :A
+    out = b.to_dsl
+    expected = <<-EXPECTED
+attr1 'foo'
+b do
+  attr2 'bar'
+  c '1'
+end
+    EXPECTED
+    expect(out).to eq expected
+
+  end
+
+  it 'handles non-leaf elements with `-` names' do
+    xml = <<-XML
+<condition1>
+  <use-active-baseline>true</use-active-baseline>
+  <metric-expression>
+    <type>leaf</type>
+    <function-type>VALUE</function-type>
+    <metric-definition>
+      <type>LOGICAL_METRIC</type>
+    </metric-definition>
+  </metric-expression>
+</condition1>
+    XML
+
+    expected = <<-EXPECTED
+useActiveBaseline 'true'
+metricExpression do
+  type 'leaf'
+  functionType 'VALUE'
+  metricDefinition do
+    type 'LOGICAL_METRIC'
+  end
+end
+    EXPECTED
+
+    runtime = DslRuntime.new
+    runtime.populate_raw xml
+    b = DslBuilder.new xml, runtime, :Condition1
+    out = b.to_dsl
+    expect(out).to eq expected
   end
 end

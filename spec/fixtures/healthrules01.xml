@@ -11,15 +11,12 @@
     <affected-entities-match-criteria>
       <affected-bt-match-criteria>
         <type>ALL</type>
-
       </affected-bt-match-criteria>
-
     </affected-entities-match-criteria>
     <critical-execution-criteria>
       <entity-aggregation-scope>
         <type>AGGREGATE</type>
         <value>0</value>
-
       </entity-aggregation-scope>
       <policy-condition>
         <type>boolean</type>
@@ -41,11 +38,8 @@
             <metric-definition>
               <type>LOGICAL_METRIC</type>
               <logical-metric-name>Average Response Time (ms)</logical-metric-name>
-
             </metric-definition>
-
           </metric-expression>
-
         </condition1>
         <condition2>
           <type>leaf</type>
@@ -64,21 +58,15 @@
             <metric-definition>
               <type>LOGICAL_METRIC</type>
               <logical-metric-name>Calls per Minute</logical-metric-name>
-
             </metric-definition>
-
           </metric-expression>
-
         </condition2>
-
       </policy-condition>
-
     </critical-execution-criteria>
     <warning-execution-criteria>
       <entity-aggregation-scope>
         <type>AGGREGATE</type>
         <value>0</value>
-
       </entity-aggregation-scope>
       <policy-condition>
         <type>boolean</type>
@@ -100,11 +88,8 @@
             <metric-definition>
               <type>LOGICAL_METRIC</type>
               <logical-metric-name>Average Response Time (ms)</logical-metric-name>
-
             </metric-definition>
-
           </metric-expression>
-
         </condition1>
         <condition2>
           <type>leaf</type>
@@ -123,17 +108,10 @@
             <metric-definition>
               <type>LOGICAL_METRIC</type>
               <logical-metric-name>Calls per Minute</logical-metric-name>
-
             </metric-definition>
-
           </metric-expression>
-
         </condition2>
-
       </policy-condition>
-
     </warning-execution-criteria>
-
   </health-rule>
-
 </health-rules>

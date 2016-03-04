@@ -1,4 +1,4 @@
-d (expand :D do
+d  do
   e 'baz'
-end)
+end
 
