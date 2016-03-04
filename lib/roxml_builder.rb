@@ -1,14 +1,14 @@
-require 'roxml'
+# require 'roxml'
 require 'nokogiri'
 class RoxmlBuilder
-  def initialize (root)
+  def initialize (root, current_classes = {})
     # @type Nokogiri::Element
     @root = root
 
     # @type Map<Symbol, ROXML>
-    @generated_classes = {}
+    @generated_classes = current_classes
 
-    @root_class = Class.new do
+    @root_class = @generated_classes[name_to_sym(root.name)] || Class.new do
       include ROXML
       xml_convention :dasherize
       xml_name root.name
@@ -21,15 +21,18 @@ class RoxmlBuilder
   end
   def build_classes
     # @root_class.xml_name (@root.name)
-    @root.xpath("//#{@root.name}/*").each do |child|
-      if is_leaf?(child)
-        add_accessor name_to_sym(child.name, true)
+    @root.xpath("//#{@root.name}/*|//#{@root.name}/@*").each do |child|
+      default_opts = {from:child.name}
+      if is_leaf_element?(child)
+        add_accessor name_to_sym(child.name, true), default_opts
+      elsif child.type == Nokogiri::XML::Node::ATTRIBUTE_NODE
+        add_accessor name_to_sym(child.name, true), {from: "@#{child.name}"}
       else
-        builder = RoxmlBuilder.new child
+        builder = RoxmlBuilder.new child, @generated_classes
         new_classes = builder.build_classes
         child_name = name_to_sym(child.name, true)
         child_class_name = name_to_sym child.name
-        add_accessor child_name, as: new_classes[child_class_name]
+        add_accessor child_name, default_opts.merge({as: new_classes[child_class_name]})
         @generated_classes.merge!(new_classes)
       end
     end
@@ -40,21 +43,34 @@ class RoxmlBuilder
   def name_to_sym(name, lower_case = false)
     # name.gsub('-', '_').to_sym
     new_name = name.split('-').collect(&:capitalize).join
-    new_name.downcase! if lower_case
+    new_name[0] = new_name[0].downcase! if lower_case
     new_name.to_sym
   end
 
 
   def add_accessor(name, opts = {})
-    attr = @root_class.roxml_attrs.find {|a| a.name.to_sym == name }
-    if attr
-
-
+    attrs = @root_class.roxml_attrs
+    attr = attrs.find do |a|
+      a.accessor.to_sym == name
     end
-    @root_class.xml_accessor name, opts
+    # if class already has xml attribute, delete the old version and add the new version
+
+    if attr
+      attr_type = attr.sought_type
+      new_attr_type = opts[:as]
+      if new_attr_type && attr_type != :text && new_attr_type.tag_name == attr_type.tag_name
+        @root_class.instance_variable_set(:@roxml_attrs, attrs.select {|i| i != attr })
+        @root_class.xml_accessor name, opts.merge({as: [new_attr_type]})
+      end
+    else
+      @root_class.xml_accessor name, opts
+    end
   end
 
-  def is_leaf?(element)
-    element.children.select {|c| c.type == Nokogiri::XML::Node::ELEMENT_NODE}.empty?
+  # element is a leaf it has text content and no attributes
+  def is_leaf_element?(element)
+    element.type == Nokogiri::XML::Node::ELEMENT_NODE &&
+      element.attributes.size == 0 &&
+      element.children.select {|c| c.type == Nokogiri::XML::Node::ELEMENT_NODE}.empty?
   end
 end

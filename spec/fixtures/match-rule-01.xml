@@ -1,0 +1,8 @@
+<match-rule>
+  <normal-rule>
+    <enabled>true</enabled>
+    <priority>10</priority>
+    <uri filter-type="STARTSWITH" filter-value="/api/"/>
+    <properties/>
+  </normal-rule>
+</match-rule>

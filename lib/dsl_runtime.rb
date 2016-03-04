@@ -17,7 +17,7 @@ class DslRuntime
   end
 
   def populate_raw (raw)
-    builder = RoxmlBuilder.new (Nokogiri::XML(raw).root)
+    builder = RoxmlBuilder.new (Nokogiri::XML(raw).root), @classes
     new_classes = builder.build_classes
     @classes.merge! new_classes
   end
