@@ -8,7 +8,6 @@ describe 'tranforming a healthrules xml file to dsl and evaluating the dsl' do
     b = DslBuilder.new xml, runtime, :HealthRules
     out = b.to_dsl
     actual = runtime.evaluate_raw(out, :HealthRules).get_el.to_xml
-
     expect(actual.to_s).to eq xml
   end
 end

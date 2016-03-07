@@ -27,6 +27,10 @@ class DslRuntime
     @classes[class_name]
   end
 
+  def add_class(name, clazz)
+    @classes[name] = clazz
+  end
+
   def evaluate_file(path, root_class)
     cleanroom = RootCleanroom.new(fetch(root_class).new, self)
     cleanroom.evaluate_file path

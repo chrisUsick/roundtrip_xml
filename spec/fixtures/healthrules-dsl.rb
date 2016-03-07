@@ -1,3 +1,4 @@
+use_file './spec/fixtures/healthrule-helpers.rb'
 controllerVersion '004-001-008-007'
 healthRule do
   name 'Business Transaction response time is much higher than normal'
@@ -13,14 +14,9 @@ healthRule do
       type 'ALL'
     end
   end
-  criticalExecutionCriteria do
-    entityAggregationScope do
-      type 'AGGREGATE'
-      value '0'
-    end
-    policyCondition do
-      type 'boolean'
-      operator 'AND'
+  criticalExecutionCriteria :RegularExecutionCriteria do
+
+    policyCondition :PolicyCondition2 do
       condition1 do
         type 'leaf'
         displayName 'Average Response Time (ms) Baseline Condition'
@@ -29,16 +25,9 @@ healthRule do
         operator 'GREATER_THAN'
         conditionExpression ''
         useActiveBaseline 'true'
-        metricExpression do
-          type 'leaf'
-          functionType 'VALUE'
-          value '0'
-          isLiteralExpression 'false'
-          displayName 'null'
-          metricDefinition do
-            type 'LOGICAL_METRIC'
-            logicalMetricName 'Average Response Time (ms)'
-          end
+        metricExpression :BasicExpression do
+          function 'VALUE'
+          metric_name 'Average Response Time (ms)'
         end
       end
       condition2 do
@@ -49,28 +38,15 @@ healthRule do
         operator 'GREATER_THAN'
         conditionExpression ''
         useActiveBaseline 'false'
-        metricExpression do
-          type 'leaf'
-          functionType 'VALUE'
-          value '0'
-          isLiteralExpression 'false'
-          displayName 'null'
-          metricDefinition do
-            type 'LOGICAL_METRIC'
-            logicalMetricName 'Calls per Minute'
-          end
+        metricExpression :BasicExpression do
+          function'VALUE'
+          metric_name 'Calls per Minute'
         end
       end
     end
   end
-  warningExecutionCriteria do
-    entityAggregationScope do
-      type 'AGGREGATE'
-      value '0'
-    end
-    policyCondition do
-      type 'boolean'
-      operator 'AND'
+  warningExecutionCriteria :RegularExecutionCriteria do
+    policyCondition :PolicyCondition2 do
       condition1 do
         type 'leaf'
         displayName 'Average Response Time (ms) Baseline Condition'
@@ -79,18 +55,11 @@ healthRule do
         operator 'GREATER_THAN'
         conditionExpression ''
         useActiveBaseline 'true'
-        metricExpression do
-          type 'leaf'
-          functionType 'VALUE'
-          value '0'
-          isLiteralExpression 'false'
-          displayName 'null'
-          metricDefinition do
-            type 'LOGICAL_METRIC'
-            logicalMetricName 'Average Response Time (ms)'
+        metricExpression :BasicExpression do
+          function 'VALUE'
+          metric_name 'Average Response Time (ms)'
           end
         end
-      end
       condition2 do
         type 'leaf'
         displayName 'Calls per Minute Condition'
@@ -99,16 +68,9 @@ healthRule do
         operator 'GREATER_THAN'
         conditionExpression ''
         useActiveBaseline 'false'
-        metricExpression do
-          type 'leaf'
-          functionType 'VALUE'
-          value '0'
-          isLiteralExpression 'false'
-          displayName 'null'
-          metricDefinition do
-            type 'LOGICAL_METRIC'
-            logicalMetricName 'Calls per Minute'
-          end
+        metricExpression :BasicExpression do
+          function 'VALUE'
+          metric_name 'Calls per Minute'
         end
       end
     end

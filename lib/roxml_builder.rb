@@ -1,5 +1,6 @@
 # require 'roxml'
 require 'nokogiri'
+require './lib/plain_accessors'
 class RoxmlBuilder
   def initialize (root, current_classes = {})
     # @type Nokogiri::Element
@@ -10,6 +11,7 @@ class RoxmlBuilder
 
     @root_class = @generated_classes[name_to_sym(root.name)] || Class.new do
       include ROXML
+      include PlainAccessors
       xml_convention :dasherize
       xml_name root.name
       def attributes
@@ -24,15 +26,15 @@ class RoxmlBuilder
     @root.xpath("//#{@root.name}/*|//#{@root.name}/@*").each do |child|
       default_opts = {from:child.name}
       if is_leaf_element?(child)
-        add_accessor name_to_sym(child.name, true), default_opts
+        add_accessor name_to_sym(child.name, true), default_opts, @root
       elsif child.type == Nokogiri::XML::Node::ATTRIBUTE_NODE
-        add_accessor name_to_sym(child.name, true), {from: "@#{child.name}"}
+        add_accessor name_to_sym(child.name, true), {from: "@#{child.name}"}, @root
       else
         builder = RoxmlBuilder.new child, @generated_classes
         new_classes = builder.build_classes
         child_name = name_to_sym(child.name, true)
         child_class_name = name_to_sym child.name
-        add_accessor child_name, default_opts.merge({as: new_classes[child_class_name]})
+        add_accessor child_name, default_opts.merge({as: new_classes[child_class_name]}), @root
         @generated_classes.merge!(new_classes)
       end
     end
@@ -48,20 +50,28 @@ class RoxmlBuilder
   end
 
 
-  def add_accessor(name, opts = {})
+  def add_accessor(name, opts = {}, node = nil)
     attrs = @root_class.roxml_attrs
     attr = attrs.find do |a|
       a.accessor.to_sym == name
     end
     # if class already has xml attribute, delete the old version and add the new version
 
-    if attr
-      attr_type = attr.sought_type
-      new_attr_type = opts[:as]
-      if new_attr_type && attr_type != :text && new_attr_type.tag_name == attr_type.tag_name
+    if attr && node
+      if node.xpath("./#{attr.name}").size > 1
         @root_class.instance_variable_set(:@roxml_attrs, attrs.select {|i| i != attr })
+        new_attr_type = opts[:as]
+        # add a new attribute with the array type.
         @root_class.xml_accessor name, opts.merge({as: [new_attr_type]})
       end
+      # attr_type = attr.sought_type
+      # new_attr_type = opts[:as]
+      # if new_attr_type && attr_type != :text && new_attr_type.tag_name == attr_type.tag_name
+      #   # remove `attr` from the class's attributes
+      #   @root_class.instance_variable_set(:@roxml_attrs, attrs.select {|i| i != attr })
+      #   # add a new attribute with the array type.
+      #   @root_class.xml_accessor name, opts.merge({as: [new_attr_type]})
+      # end
     else
       @root_class.xml_accessor name, opts
     end

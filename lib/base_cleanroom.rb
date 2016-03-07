@@ -14,8 +14,10 @@ class BaseCleanroom
         if !block.nil?
           clazz = name ? @runtime.fetch(name) : attr.sought_type
           value = expand(clazz, &block)
-        else
+        elsif name
           value = name
+        else
+          return get_el.send(attr.accessor.to_sym)
         end
 
         if attr.array?
@@ -29,28 +31,51 @@ class BaseCleanroom
       end
       self.class.send(:expose, method_name)
     end
+
+    expose_attr_accessors
+  end
+
+  def expose_attr_accessors()
+    get_el.class.plain_accessors.each do |a|
+      create_method(a) do |value = nil|
+        return get_el.send(a) unless value
+        get_el.send("#{a}=".to_sym, value) if value
+      end
+      self.class.send(:expose, a)
+    end
   end
   def create_method(name, &block)
     self.class.send(:define_method, name, &block)
   end
 
   def expand(clazz, &block)
+    plain_accessors = @el.class.plain_accessors
+    hash = {}
+    @value_holder ||= {}
+    if plain_accessors != 0
+      hash = plain_accessors.inject({}) {|h, a| h[a] = @el.send(a); h}
+    end
     child = @runtime.create_cleanroom(clazz)
-    child.inherit_properties(@args, @value_holder) if instance_variable_defined?(:@args)
+    child.inherit_properties @value_holder.merge(hash)
+    # child.inherit_properties(@args, @value_holder) if instance_variable_defined?(:@args)
     child.evaluate &block
-    child.process if child.respond_to? :process
+    child.evaluate &child.get_el.process if child.get_el.respond_to? :process
+    # evaluate the ROXML object's proc, which further modifies the element
+    # child.evaluate &child.get_el.class.proc if child.respond_to? :proc
     child.get_el
   end
 
-  def inherit_properties(props, value_holder)
-    @value_holder ||= value_holder
-    props.each do |arg|
-      @value_holder.class.send(:attr_accessor, arg)
-      @value_holder.send("#{arg}=".to_sym, value_holder.send(arg))
-      create_method(arg) do
-        @value_holder.send(arg)
-      end
-      self.class.send(:expose, arg)
+  def inherit_properties(props)
+    @value_holder = props
+    props.each do |name, val|
+      # @value_holder.class.send(:attr_accessor, arg)
+      # @value_holder.send("#{arg}=".to_sym, value_holder.send(arg))
+      # create_method(arg) do
+      #   @value_holder.send(arg)
+      # end
+      self.class.send(:attr_reader, name)
+      self.instance_variable_set("@#{name}".to_sym, val)
+      self.class.send(:expose, name)
     end
   end
 end

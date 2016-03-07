@@ -16,8 +16,22 @@ describe 'RoxmlBuilder' do
     builder = RoxmlBuilder.new(Nokogiri::XML(xml).root)
     new_classes = builder.build_classes
     el = new_classes[:A].new
-    b_attribute = el.attributes[0]
+    b_attribute = el.attributes.find {|a| a.name == 'b'}
     expect(b_attribute.array?).to be_truthy
+  end
+
+
+  it "doesn't make attr array when encountered in different contexts" do
+    xml = <<-XML
+<a-container>
+<a><b><foo>1</foo></b></a>
+<a><b><foo>2</foo></b></a>
+</a-container>
+    XML
+    builder = RoxmlBuilder.new(Nokogiri::XML(xml).root)
+    new_classes = builder.build_classes
+    b_attribute = new_classes[:A].roxml_attrs.find {|a| a.name == 'b'}
+    expect(b_attribute.array?).to be_falsey
   end
 
   it 'gets attributes' do
