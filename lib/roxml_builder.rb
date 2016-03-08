@@ -1,6 +1,8 @@
 # require 'roxml'
 require 'nokogiri'
 require './lib/plain_accessors'
+# Builds dynamic classes based on an XML file.
+# Classes that already exist in the DslRuntime instance are modified if necessary, not overridden.
 class RoxmlBuilder
   def initialize (root, current_classes = {})
     # @type Nokogiri::Element

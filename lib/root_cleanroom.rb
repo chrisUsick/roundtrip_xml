@@ -1,4 +1,5 @@
 require './lib/base_cleanroom'
+# addes the `define` and `use_file` method to a cleanroom. Only used when evaluating a root file
 class RootCleanroom < BaseCleanroom
 
   def define(name, parent, *params, &block)

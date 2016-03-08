@@ -3,6 +3,7 @@ require 'nokogiri'
 require './lib/roxml_builder'
 require './lib/base_cleanroom'
 require './lib/root_cleanroom'
+# Class which evaluates DSL and read XML files to populate the namespace with classes
 class DslRuntime
   def initialize()
     @classes = {}

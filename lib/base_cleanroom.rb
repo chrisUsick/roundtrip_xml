@@ -1,4 +1,5 @@
 require 'cleanroom'
+# Generates cleanroom methods corresponding to all the xml_accessors and plain_accessors of @el
 class BaseCleanroom
   include Cleanroom
   def get_el
