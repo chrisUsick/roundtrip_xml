@@ -12,9 +12,8 @@ Gem::Specification.new do |s|
     'https://github.com/chrisUsick/roundtrip-xml'
   s.license       = 'MIT'
 
-  s.add_dependency 'roxml'
-  s.add_dependency 'nokogiri'
-  s.add_dependency 'cleanroom'
-  s.add_dependency 'rspec'
-  s.add_dependency 'nokogiri-diff'
+  s.add_dependency 'roxml', '~> 3.3'
+  s.add_dependency 'nokogiri', '~> 1.6'
+  s.add_dependency 'cleanroom', '~> 1.0'
+  s.add_dependency 'nokogiri-diff', '~> 0.2'
 end
