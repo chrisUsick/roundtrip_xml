@@ -13,16 +13,21 @@ class DslBuilder
 
   def write_attrs(clazz, xml, inset='')
     clazz.roxml_attrs.inject('') do |out, attr|
+      # if no xml was found for the given selector, the attribute was optional
+      return '' unless xml
       accessor = attr.accessor
       selector = attr.name
 
       if attr.sought_type == :text
         out += inset + "#{accessor} '#{xml.xpath(selector)[0].content}'\n"
       elsif attr.sought_type == :attr
-        out += inset + "#{accessor} '#{xml.xpath("@#{selector}")[0].content}'\n"
+        child_attribute = xml.attributes[selector]
+        out += inset + "#{accessor} '#{child_attribute.content}'\n" if child_attribute
       elsif !attr.array?
-        out += inset + "#{accessor} do\n#{write_attrs attr.sought_type, xml.xpath(selector)[0], inset + '  '}#{inset}end\n"
-
+        child_element = xml.children.find {|c| c.name == selector}
+        if child_element
+          out += inset + "#{accessor} do\n#{write_attrs attr.sought_type, child_element, inset + '  '}#{inset}end\n"
+        end
       else
         xml.xpath(selector).each do |node|
           out += inset + "#{accessor} do\n#{write_attrs attr.sought_type, node, inset + '  '}#{inset}end\n"
