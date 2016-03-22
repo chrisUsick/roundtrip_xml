@@ -24,6 +24,7 @@ class DslBuilder
         child_attribute = xml.attributes[selector]
         out += inset + "#{accessor} '#{child_attribute.content}'\n" if child_attribute
       elsif !attr.array?
+        # the element that matches `selector` may not be in this node
         child_element = xml.children.find {|c| c.name == selector}
         if child_element
           out += inset + "#{accessor} do\n#{write_attrs attr.sought_type, child_element, inset + '  '}#{inset}end\n"
