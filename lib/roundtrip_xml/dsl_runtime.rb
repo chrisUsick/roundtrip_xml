@@ -1,8 +1,8 @@
 require 'roxml'
 require 'nokogiri'
-require './lib/roundtrip_xml/roxml_builder'
-require './lib/roundtrip_xml/root_cleanroom'
-require './lib/roundtrip_xml/base_cleanroom'
+require 'roundtrip_xml/roxml_builder'
+require 'roundtrip_xml/root_cleanroom'
+require 'roundtrip_xml/base_cleanroom'
 # Class which evaluates DSL and read XML files to populate the namespace with classes
 class DslRuntime
   def initialize()

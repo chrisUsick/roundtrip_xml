@@ -55,3 +55,4 @@ build/
 .gradletasknamecache
 dsl_out.rb
 Gemfile.lock
+*-profile.html

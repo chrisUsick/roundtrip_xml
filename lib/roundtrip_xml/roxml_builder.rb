@@ -1,6 +1,6 @@
 # require 'roxml'
 require 'nokogiri'
-require './lib/roundtrip_xml/plain_accessors'
+require 'roundtrip_xml/plain_accessors'
 # Builds dynamic classes based on an XML file.
 # Classes that already exist in the DslRuntime instance are modified if necessary, not overridden.
 class RoxmlBuilder
@@ -22,6 +22,7 @@ class RoxmlBuilder
     end
 
     @generated_classes[ name_to_sym(@root.name)] = @root_class
+    @nodes = {}
   end
   def build_classes
     # @root_class.xml_name (@root.name)
@@ -52,30 +53,23 @@ class RoxmlBuilder
   end
 
 
-  def add_accessor(name, opts = {}, node = nil)
+  def add_accessor(name, opts = {}, node)
     attrs = @root_class.roxml_attrs
     attr = attrs.find do |a|
       a.accessor.to_sym == name
     end
     # if class already has xml attribute, delete the old version and add the new version
 
-    if attr && node
-      if node.xpath("./#{attr.name}").size > 1
+    if attr
+      if node_has_child?(node, attr.name)
         @root_class.instance_variable_set(:@roxml_attrs, attrs.select {|i| i != attr })
         new_attr_type = opts[:as]
         # add a new attribute with the array type.
         @root_class.xml_accessor name, opts.merge({as: [new_attr_type]})
       end
-      # attr_type = attr.sought_type
-      # new_attr_type = opts[:as]
-      # if new_attr_type && attr_type != :text && new_attr_type.tag_name == attr_type.tag_name
-      #   # remove `attr` from the class's attributes
-      #   @root_class.instance_variable_set(:@roxml_attrs, attrs.select {|i| i != attr })
-      #   # add a new attribute with the array type.
-      #   @root_class.xml_accessor name, opts.merge({as: [new_attr_type]})
-      # end
     else
       @root_class.xml_accessor name, opts
+      add_child_to_node(node, attr.name)
     end
   end
 
@@ -84,5 +78,14 @@ class RoxmlBuilder
     element.type == Nokogiri::XML::Node::ELEMENT_NODE &&
       element.attributes.size == 0 &&
       element.children.select {|c| c.type == Nokogiri::XML::Node::ELEMENT_NODE}.empty?
+  end
+
+  def node_has_child?(node, child)
+    @nodes[node.pointer_id][child]
+  end
+
+  def add_child_to_node(node, child)
+    @nodes[node.pointer_id] ||= {}
+    @nodes[node.pointer_id][child] = true
   end
 end
