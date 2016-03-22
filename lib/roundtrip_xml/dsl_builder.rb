@@ -19,7 +19,8 @@ class DslBuilder
       selector = attr.name
 
       if attr.sought_type == :text
-        out += inset + "#{accessor} '#{xml.xpath(selector)[0].content}'\n"
+        text_element = xml.children.find {|c| c.name == selector}
+        out += inset + "#{accessor} '#{text_element.content}'\n" if text_element
       elsif attr.sought_type == :attr
         child_attribute = xml.attributes[selector]
         out += inset + "#{accessor} '#{child_attribute.content}'\n" if child_attribute
