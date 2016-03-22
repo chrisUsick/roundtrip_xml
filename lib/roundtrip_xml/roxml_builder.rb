@@ -26,13 +26,14 @@ class RoxmlBuilder
   end
   def build_classes
     # @root_class.xml_name (@root.name)
-    @root.xpath("*|//#{@root.name}/@*").each do |child|
+    @root.attributes.values.to_a.concat(@root.children.to_a).each do |child|
       default_opts = {from:child.name}
       if is_leaf_element?(child)
         add_accessor name_to_sym(child.name, true), default_opts, @root
       elsif child.type == Nokogiri::XML::Node::ATTRIBUTE_NODE
         add_accessor name_to_sym(child.name, true), {from: "@#{child.name}"}, @root
-      else
+      elsif child.type == Nokogiri::XML::Node::ELEMENT_NODE
+        # making sure that child is an element here ensures text nodes don't get processed here
         builder = RoxmlBuilder.new child, @generated_classes
         new_classes = builder.build_classes
         child_name = name_to_sym(child.name, true)

@@ -6,16 +6,16 @@ describe 'preparing a large file' do
   let(:xml_str) { fixture('large_td.xml') }
 
   it 'populates the runtime' do
-    runtime.populate_raw xml_str
-    expect(runtime.fetch(:CustomMatchPoint)).to be_kind_of Class
+    # runtime.populate_raw xml_str
+    # expect(runtime.fetch(:CustomMatchPoint)).to be_kind_of Class
   end
 
   it 'builds the DSL' do
-    runtime.populate_raw xml_str
-    builder = DslBuilder.new(xml_str, runtime, :CustomMatchPoints)
-    dsl = builder.to_dsl
-    puts dsl
-    expect(dsl).to be_truthy
+    # runtime.populate_raw xml_str
+    # builder = DslBuilder.new(xml_str, runtime, :CustomMatchPoints)
+    # dsl = builder.to_dsl
+    # puts dsl
+    # expect(dsl).to be_truthy
 
   end
 
