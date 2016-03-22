@@ -1,0 +1,327 @@
+<custom-match-points controller-version="004-001-008-007">
+  <custom-match-point>
+    <name>/v1/changePassword (PUT) - ChangePassword</name>
+    <business-transaction-name>/v1/changePassword (PUT) - ChangePassword</business-transaction-name>
+    <entry-point>SERVLET</entry-point>
+    <background>false</background>
+    <enabled>true</enabled>
+    <match-rule>
+      <servlet-rule>
+        <enabled>true</enabled>
+        <priority>10</priority>
+        <uri filter-type="REGEX" filter-value="/v1/changePassword$"/>
+        <http-method>PUT</http-method>
+        <properties/>
+
+      </servlet-rule>
+
+    </match-rule>
+
+  </custom-match-point>
+  <custom-match-point>
+    <name>/v1/changePassword/legacy/{id} (PUT) - ChangePasswordLegacy</name>
+    <business-transaction-name>/v1/changePassword/legacy/{id} (PUT) - ChangePasswordLegacy</business-transaction-name>
+    <entry-point>SERVLET</entry-point>
+    <background>false</background>
+    <enabled>true</enabled>
+    <match-rule>
+      <servlet-rule>
+        <enabled>true</enabled>
+        <priority>10</priority>
+        <uri filter-type="REGEX" filter-value="/v1/changePassword/legacy/[^/]+$"/>
+        <http-method>PUT</http-method>
+        <properties/>
+
+      </servlet-rule>
+
+    </match-rule>
+
+  </custom-match-point>
+  <custom-match-point>
+    <name>/v1/forgotPassword/{id} (GET) - ForgotPasswordTrigger</name>
+    <business-transaction-name>/v1/forgotPassword/{id} (GET) - ForgotPasswordTrigger</business-transaction-name>
+    <entry-point>SERVLET</entry-point>
+    <background>false</background>
+    <enabled>true</enabled>
+    <match-rule>
+      <servlet-rule>
+        <enabled>true</enabled>
+        <priority>10</priority>
+        <uri filter-type="REGEX" filter-value="/v1/forgotPassword/[^/]+$"/>
+        <http-method>GET</http-method>
+        <properties/>
+
+      </servlet-rule>
+
+    </match-rule>
+
+  </custom-match-point>
+  <custom-match-point>
+    <name>/v1/oauth/rdvu (POST) - AddRendezvousCode</name>
+    <business-transaction-name>/v1/oauth/rdvu (POST) - AddRendezvousCode</business-transaction-name>
+    <entry-point>SERVLET</entry-point>
+    <background>false</background>
+    <enabled>true</enabled>
+    <match-rule>
+      <servlet-rule>
+        <enabled>true</enabled>
+        <priority>10</priority>
+        <uri filter-type="REGEX" filter-value="/v1/oauth/rdvu$"/>
+        <http-method>POST</http-method>
+        <properties/>
+
+      </servlet-rule>
+
+    </match-rule>
+
+  </custom-match-point>
+  <custom-match-point>
+    <name>/v1/oauth/token (POST) - GetAuthToken</name>
+    <business-transaction-name>/v1/oauth/token (POST) - GetAuthToken</business-transaction-name>
+    <entry-point>SERVLET</entry-point>
+    <background>false</background>
+    <enabled>true</enabled>
+    <match-rule>
+      <servlet-rule>
+        <enabled>true</enabled>
+        <priority>10</priority>
+        <uri filter-type="REGEX" filter-value="/v1/oauth/token$"/>
+        <http-method>POST</http-method>
+        <properties/>
+
+      </servlet-rule>
+
+    </match-rule>
+
+  </custom-match-point>
+  <custom-match-point>
+    <name>/v1/oauth/token (POST) - RefreshAuthToken</name>
+    <business-transaction-name>/v1/oauth/token (POST) - RefreshAuthToken</business-transaction-name>
+    <entry-point>SERVLET</entry-point>
+    <background>false</background>
+    <enabled>true</enabled>
+    <match-rule>
+      <servlet-rule>
+        <enabled>true</enabled>
+        <priority>9999</priority>
+        <uri filter-type="REGEX" filter-value="/v1/oauth/token$"/>
+        <http-method>POST</http-method>
+        <parameters>
+          <parameter match-type="compare-value">
+            <name filter-type="EQUALS" filter-value="grant_type"/>
+            <value filter-type="EQUALS" filter-value="refresh_token"/>
+
+          </parameter>
+
+        </parameters>
+        <properties/>
+
+      </servlet-rule>
+
+    </match-rule>
+
+  </custom-match-point>
+  <custom-match-point>
+    <name>/v1/register (PUT) - RegisterResourceOwner</name>
+    <business-transaction-name>/v1/register (PUT) - RegisterResourceOwner</business-transaction-name>
+    <entry-point>SERVLET</entry-point>
+    <background>false</background>
+    <enabled>true</enabled>
+    <match-rule>
+      <servlet-rule>
+        <enabled>true</enabled>
+        <priority>10</priority>
+        <uri filter-type="REGEX" filter-value="/v1/register$"/>
+        <http-method>PUT</http-method>
+        <properties/>
+
+      </servlet-rule>
+
+    </match-rule>
+
+  </custom-match-point>
+  <custom-match-point>
+    <name>/v1/register/legacy (PUT) - RegisterResourceOwnerLegacy</name>
+    <business-transaction-name>/v1/register/legacy (PUT) - RegisterResourceOwnerLegacy</business-transaction-name>
+    <entry-point>SERVLET</entry-point>
+    <background>false</background>
+    <enabled>true</enabled>
+    <match-rule>
+      <servlet-rule>
+        <enabled>true</enabled>
+        <priority>10</priority>
+        <uri filter-type="REGEX" filter-value="/v1/register/legacy$"/>
+        <http-method>PUT</http-method>
+        <properties/>
+
+      </servlet-rule>
+
+    </match-rule>
+
+  </custom-match-point>
+  <custom-match-point>
+    <name>/v1/sso/update/{id} (PUT) - UpdateLegacySsoUser</name>
+    <business-transaction-name>/v1/sso/update/{id} (PUT) - UpdateLegacySsoUser</business-transaction-name>
+    <entry-point>SERVLET</entry-point>
+    <background>false</background>
+    <enabled>true</enabled>
+    <match-rule>
+      <servlet-rule>
+        <enabled>true</enabled>
+        <priority>10</priority>
+        <uri filter-type="REGEX" filter-value="/v1/sso/update/[^/]+$"/>
+        <http-method>POST</http-method>
+        <properties/>
+
+      </servlet-rule>
+
+    </match-rule>
+
+  </custom-match-point>
+  <custom-match-point>
+    <name>/v1/sso/update/email/legacy/{id} (PUT) - UpdateLegacySsoUser</name>
+    <business-transaction-name>/v1/sso/update/email/legacy/{id} (PUT) - UpdateLegacySsoUser</business-transaction-name>
+    <entry-point>SERVLET</entry-point>
+    <background>false</background>
+    <enabled>true</enabled>
+    <match-rule>
+      <servlet-rule>
+        <enabled>true</enabled>
+        <priority>10</priority>
+        <uri filter-type="REGEX" filter-value="/v1/sso/update/email/legacy/[^/]+$"/>
+        <http-method>POST</http-method>
+        <properties/>
+
+      </servlet-rule>
+
+    </match-rule>
+
+  </custom-match-point>
+  <custom-match-point>
+    <name>/v1/users/{id}/exists (GET) - CheckUserExists</name>
+    <business-transaction-name>/v1/users/{id}/exists (GET) - CheckUserExists</business-transaction-name>
+    <entry-point>SERVLET</entry-point>
+    <background>false</background>
+    <enabled>true</enabled>
+    <match-rule>
+      <servlet-rule>
+        <enabled>true</enabled>
+        <priority>10</priority>
+        <uri filter-type="REGEX" filter-value="/v1/users/[^/]+/exists$"/>
+        <http-method>GET</http-method>
+        <properties/>
+
+      </servlet-rule>
+
+    </match-rule>
+
+  </custom-match-point>
+  <custom-match-point>
+    <name>Cron4J</name>
+    <business-transaction-name>Cron4J</business-transaction-name>
+    <entry-point>POJO</entry-point>
+    <background>false</background>
+    <enabled>false</enabled>
+    <match-rule>
+      <pojo-rule>
+        <enabled>false</enabled>
+        <priority>0</priority>
+        <display-name>Cron4J</display-name>
+        <background>true</background>
+        <match-class type="inherits-from-class">
+          <name filter-type="EQUALS" filter-value="it.sauronsoftware.cron4j.Task"/>
+
+        </match-class>
+        <split-config type="4"/>
+        <match-method>
+          <name filter-type="EQUALS" filter-value="execute"/>
+
+        </match-method>
+
+      </pojo-rule>
+
+    </match-rule>
+
+  </custom-match-point>
+  <custom-match-point>
+    <name>JavaTimer</name>
+    <business-transaction-name>JavaTimer</business-transaction-name>
+    <entry-point>POJO</entry-point>
+    <background>false</background>
+    <enabled>false</enabled>
+    <match-rule>
+      <pojo-rule>
+        <enabled>false</enabled>
+        <priority>0</priority>
+        <display-name>JavaTimer</display-name>
+        <background>true</background>
+        <match-class type="inherits-from-class">
+          <name filter-type="EQUALS" filter-value="java.util.TimerTask"/>
+
+        </match-class>
+        <split-config type="4"/>
+        <match-method>
+          <name filter-type="EQUALS" filter-value="run"/>
+
+        </match-method>
+
+      </pojo-rule>
+
+    </match-rule>
+
+  </custom-match-point>
+  <custom-match-point>
+    <name>JCronTab</name>
+    <business-transaction-name>JCronTab</business-transaction-name>
+    <entry-point>POJO</entry-point>
+    <background>false</background>
+    <enabled>false</enabled>
+    <match-rule>
+      <pojo-rule>
+        <enabled>false</enabled>
+        <priority>0</priority>
+        <display-name>JCronTab</display-name>
+        <background>true</background>
+        <match-class type="matches-class">
+          <name filter-type="EQUALS" filter-value="org.jcrontab.CronTask"/>
+
+        </match-class>
+        <split-config operation="strClassName" type="2"/>
+        <match-method>
+          <name filter-type="EQUALS" filter-value="runTask"/>
+
+        </match-method>
+
+      </pojo-rule>
+
+    </match-rule>
+
+  </custom-match-point>
+  <custom-match-point>
+    <name>Quartz</name>
+    <business-transaction-name>Quartz</business-transaction-name>
+    <entry-point>POJO</entry-point>
+    <background>false</background>
+    <enabled>false</enabled>
+    <match-rule>
+      <pojo-rule>
+        <enabled>false</enabled>
+        <priority>0</priority>
+        <display-name>Quartz</display-name>
+        <background>true</background>
+        <match-class type="implements-interface">
+          <name filter-type="EQUALS" filter-value="org.quartz.Job"/>
+
+        </match-class>
+        <split-config type="4"/>
+        <match-method>
+          <name filter-type="EQUALS" filter-value="execute"/>
+
+        </match-method>
+
+      </pojo-rule>
+
+    </match-rule>
+
+  </custom-match-point>
+</custom-match-points>

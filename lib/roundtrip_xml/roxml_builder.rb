@@ -26,7 +26,7 @@ class RoxmlBuilder
   end
   def build_classes
     # @root_class.xml_name (@root.name)
-    @root.xpath("//#{@root.name}/*|//#{@root.name}/@*").each do |child|
+    @root.xpath("*|//#{@root.name}/@*").each do |child|
       default_opts = {from:child.name}
       if is_leaf_element?(child)
         add_accessor name_to_sym(child.name, true), default_opts, @root
@@ -61,7 +61,7 @@ class RoxmlBuilder
     # if class already has xml attribute, delete the old version and add the new version
 
     if attr
-      if node_has_child?(node, attr.name)
+      if node_has_child?(node, attr.accessor.to_sym)
         @root_class.instance_variable_set(:@roxml_attrs, attrs.select {|i| i != attr })
         new_attr_type = opts[:as]
         # add a new attribute with the array type.
@@ -69,7 +69,7 @@ class RoxmlBuilder
       end
     else
       @root_class.xml_accessor name, opts
-      add_child_to_node(node, attr.name)
+      add_child_to_node(node, name)
     end
   end
 
@@ -81,11 +81,11 @@ class RoxmlBuilder
   end
 
   def node_has_child?(node, child)
-    @nodes[node.pointer_id][child]
+    @nodes[node.path] && @nodes[node.path][child]
   end
 
   def add_child_to_node(node, child)
-    @nodes[node.pointer_id] ||= {}
-    @nodes[node.pointer_id][child] = true
+    @nodes[node.path] ||= {}
+    @nodes[node.path][child] = true
   end
 end
