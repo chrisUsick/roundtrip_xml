@@ -1,9 +1,10 @@
 # require 'roxml'
 require 'nokogiri'
-require 'roundtrip_xml/plain_accessors'
+require 'roundtrip_xml/utils'
 # Builds dynamic classes based on an XML file.
 # Classes that already exist in the DslRuntime instance are modified if necessary, not overridden.
 class RoxmlBuilder
+  include Utils
   def initialize (root, current_classes = {})
     # @type Nokogiri::Element
     @root = root
@@ -11,15 +12,7 @@ class RoxmlBuilder
     # @type Map<Symbol, ROXML>
     @generated_classes = current_classes
 
-    @root_class = @generated_classes[name_to_sym(root.name)] || Class.new do
-      include ROXML
-      include PlainAccessors
-      xml_convention :dasherize
-      xml_name root.name
-      def attributes
-        self.class.roxml_attrs
-      end
-    end
+    @root_class = @generated_classes[name_to_sym(root.name)] || new_roxml_class(@root.name)
 
     @generated_classes[ name_to_sym(@root.name)] = @root_class
     @nodes = {}
