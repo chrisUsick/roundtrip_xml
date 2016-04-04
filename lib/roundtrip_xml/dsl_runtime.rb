@@ -4,11 +4,13 @@ require 'roundtrip_xml/roxml_builder'
 require 'roundtrip_xml/root_cleanroom'
 require 'roundtrip_xml/base_cleanroom'
 require 'roundtrip_xml/utils'
+require 'tree'
 # Class which evaluates DSL and read XML files to populate the namespace with classes
 class DslRuntime
   include Utils
   def initialize()
     @classes = {}
+    @root_classes = []
   end
   def populate(files)
     files.each {|f| populate_from_file f }
@@ -22,6 +24,7 @@ class DslRuntime
   def populate_raw (raw)
     builder = RoxmlBuilder.new (Nokogiri::XML(raw).root), @classes
     new_classes = builder.build_classes
+    @root_classes << builder.root_class_name
     @classes.merge! new_classes
   end
 
@@ -56,9 +59,10 @@ class DslRuntime
 
   def marshal_dump
     @classes.inject({}) do |hash, (name, clazz)|
-      hash[name] = {xml_name: clazz.xml_name }
-      hash[name][:attrs] = clazz.roxml_accessors.map do |accessor|
-        type = accessor.sought_type
+      hash[name] = {xml_name: clazz.tag_name }
+      hash[name][:attrs] = clazz.roxml_attrs.map do |accessor|
+        type = accessor.sought_type.class == Class ?
+          accessor.sought_type.class_name : accessor.sought_type
         from = accessor.sought_type == :attr ? "@#{accessor.name}" : accessor.name
         {
           name: accessor.accessor,
@@ -68,7 +72,21 @@ class DslRuntime
           }
         }
       end
+      hash
     end
+  end
+
+  def classes_to_tree(clazzes, tree = Tree::TreeNode.new(:Root, nil))
+    clazzes.each do |name, clazz|
+      child_names, serialized_class = serialized_class clazz
+      child = tree.add(name, serialized_class)
+      classes_to_tree child_names, child
+    end
+
+  end
+
+  def serialize_class(clazz)
+    []
   end
 
   def marshal_load data

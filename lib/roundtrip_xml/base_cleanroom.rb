@@ -58,22 +58,17 @@ class BaseCleanroom
     end
     child = @runtime.create_cleanroom(clazz)
     child.inherit_properties @value_holder.merge(hash)
-    # child.inherit_properties(@args, @value_holder) if instance_variable_defined?(:@args)
+
     child.evaluate &block
     child.evaluate &child.get_el.process if child.get_el.respond_to? :process
-    # evaluate the ROXML object's proc, which further modifies the element
-    # child.evaluate &child.get_el.class.proc if child.respond_to? :proc
+
     child.get_el
   end
 
   def inherit_properties(props)
     @value_holder = props
     props.each do |name, val|
-      # @value_holder.class.send(:attr_accessor, arg)
-      # @value_holder.send("#{arg}=".to_sym, value_holder.send(arg))
-      # create_method(arg) do
-      #   @value_holder.send(arg)
-      # end
+
       self.class.send(:attr_reader, name)
       self.instance_variable_set("@#{name}".to_sym, val)
       self.class.send(:expose, name)

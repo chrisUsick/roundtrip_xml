@@ -1,0 +1,24 @@
+U:DslRuntime{:MatchRule{:xml_nameI"match-rule:ET:
+attrs[{:	nameI"normalRule;F:	opts{:as:NormalRule:	fromI"normal-rule;T{;
+I"pojoRule;F;{;:PojoRule;I"pojo-rule;T;{;I"normal-rule;T;	[	{;
+I"enabled;F;{;:	text;I"enabled;T{;
+I"priority;F;{;;;I"priority;T{;
+I"uri;F;{;:Uri;I"uri;T{;
+I"properties;F;{;;;I"properties;T;{;I"uri;T;	[{;
+I"filterType;F;{;:	attr;I"@filter-type;T{;
+I"filterValue;F;{;;;I"@filter-value;T;{;I"pojo-rule;T;	[{;
+I"enabled;F;{;;;I"enabled;T{;
+I"priority;F;{;;;I"priority;T{;
+I"displayName;F;{;;;I"display-name;T{;
+I"background;F;{;;;I"background;T{;
+I"matchClass;F;{;:MatchClass;I"match-class;T{;
+I"splitConfig;F;{;:SplitConfig;I"split-config;T{;
+I"matchMethod;F;{;:MatchMethod;I"match-method;T;{;I"match-class;T;	[{;
+I"	type;F;{;;;I"
+@type;T{;
+I"	name;F;{;:	Name;I"	name;T;{;I"	name;T;	[{;
+I"filterType;F;{;;;I"@filter-type;T{;
+I"filterValue;F;{;;;I"@filter-value;T;{;I"split-config;T;	[{;
+I"	type;F;{;;;I"
+@type;T;{;I"match-method;T;	[{;
+I"	name;F;{;;;I"	name;T

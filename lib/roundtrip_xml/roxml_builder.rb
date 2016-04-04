@@ -17,6 +17,9 @@ class RoxmlBuilder
     @generated_classes[ name_to_sym(@root.name)] = @root_class
     @nodes = {}
   end
+  def root_class_name
+    name_to_sym @root.name
+  end
   def build_classes
     # @root_class.xml_name (@root.name)
     @root.attributes.values.to_a.concat(@root.children.to_a).each do |child|
@@ -38,14 +41,6 @@ class RoxmlBuilder
 
     @generated_classes
   end
-
-  def name_to_sym(name, lower_case = false)
-    # name.gsub('-', '_').to_sym
-    new_name = name.split('-').collect(&:capitalize).join
-    new_name[0] = new_name[0].downcase! if lower_case
-    new_name.to_sym
-  end
-
 
   def add_accessor(name, opts = {}, node)
     attrs = @root_class.roxml_attrs
