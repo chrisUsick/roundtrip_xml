@@ -5,12 +5,13 @@ require 'roundtrip_xml/root_cleanroom'
 require 'roundtrip_xml/base_cleanroom'
 require 'roundtrip_xml/utils'
 require 'tree'
+require 'set'
 # Class which evaluates DSL and read XML files to populate the namespace with classes
 class DslRuntime
   include Utils
   def initialize()
     @classes = {}
-    @root_classes = []
+    @root_classes = Set.new
   end
   def populate(files)
     files.each {|f| populate_from_file f }
@@ -58,7 +59,7 @@ class DslRuntime
   end
 
   def marshal_dump
-    @classes.inject({}) do |hash, (name, clazz)|
+    classes = @classes.inject({}) do |hash, (name, clazz)|
       hash[name] = {xml_name: clazz.tag_name }
       hash[name][:attrs] = clazz.roxml_attrs.map do |accessor|
         type = accessor.sought_type.class == Class ?
@@ -74,30 +75,76 @@ class DslRuntime
       end
       hash
     end
+
+    {
+      root_classes: @root_classes,
+      classes: classes
+    }
   end
 
-  def classes_to_tree(clazzes, tree = Tree::TreeNode.new(:Root, nil))
-    clazzes.each do |name, clazz|
-      child_names, serialized_class = serialized_class clazz
-      child = tree.add(name, serialized_class)
-      classes_to_tree child_names, child
-    end
-
-  end
-
-  def serialize_class(clazz)
-    []
-  end
-
-  def marshal_load data
-    @classes = data.inject({}) do |hash, (name, opts)|
-      clazz = new_roxml_class opts[:name]
-      opts[:attrs].each do |attr|
-        clazz.xml_accessor attr[:name], attr[:opts]
+  def deserialize_class(node, config)
+    clazz = fetch(node.name) || new_roxml_class(config[:xml_name])
+    config[:attrs].each do |attr|
+      type_is_parent = node.parentage && node.parentage.any? {|n| n.name == attr[:opts][:as]}
+      if type_is_parent
+        add_unprocessed_attr attr, clazz
+      else
+        clazz.xml_accessor attr[:name], transform_accessor_opts(attr[:opts])
       end
-      hash[name] = clazz
+    end
+    clazz
+  end
+
+  def add_unprocessed_attr(attr_config, clazz)
+    @unprocessed_attrs ||= []
+    @unprocessed_attrs << AttrJob.new(attr_config, clazz)
+  end
+
+  def transform_accessor_opts(opts)
+    attr_type = opts[:as]
+    is_array = attr_type.class == Array
+    type = is_array ? attr_type.first : attr_type
+    if is_array
+      opts[:as] = [fetch(type)]
+    else
+      opts[:as] = fetch type
+    end
+    opts
+  end
+
+  def marshal_load(data)
+    @root_classes = data[:root_classes]
+    trees = @root_classes.map {|clazz| hash_to_tree data[:classes], clazz}
+    trees.each do |tree|
+      tree.postordered_each do |node|
+        @classes[node.name] = deserialize_class(node, node.content)
+      end
+    end
+    @unprocessed_attrs.each do |job|
+      clazz = job.class
+      config = job.config
+      clazz.xml_accessor config[:name], transform_accessor_opts(config[:opts])
     end
   end
+
+  def hash_to_tree(hash, root_name, processed = [])
+    node = Tree::TreeNode.new(root_name, hash[root_name])
+    processed << root_name
+    children = child_classes(hash, hash[root_name])
+    children.each do |name|
+      node << hash_to_tree(hash, name, processed) unless processed.include? name
+    end
+    node
+  end
+
+  def child_classes(hash, config)
+    config[:attrs].map do |attr|
+      attr_type = attr[:opts][:as]
+      type = attr_type.class == Array ? attr_type.first : attr_type
+      type if hash.key? type
+    end.compact
+  end
+
 
   def serialize(path)
     file = File.new path, 'w'
@@ -108,5 +155,13 @@ class DslRuntime
   def self.load(path)
     file = File.open path, 'r'
     Marshal.load file
+  end
+end
+
+class AttrJob
+  attr_accessor :class, :config
+  def initialize(config, clazz)
+    self.config = config
+    self.class = clazz
   end
 end
