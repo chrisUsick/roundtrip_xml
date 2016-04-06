@@ -9,6 +9,7 @@ GEM
       tzinfo (~> 1.1)
     cleanroom (1.0.0)
     diff-lcs (1.2.5)
+    docile (1.1.5)
     i18n (0.7.0)
     json (1.8.3)
     mini_portile2 (2.0.0)
@@ -34,6 +35,15 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.4.0)
     rspec-support (3.4.1)
+    rubytree (0.9.7)
+      json (~> 1.8)
+      structured_warnings (~> 0.2)
+    simplecov (0.11.2)
+      docile (~> 1.1.0)
+      json (~> 1.8)
+      simplecov-html (~> 0.10.0)
+    simplecov-html (0.10.0)
+    structured_warnings (0.2.0)
     tdiff (0.3.3)
     thread_safe (0.3.5)
     tzinfo (1.2.2)
@@ -48,6 +58,9 @@ DEPENDENCIES
   nokogiri-diff
   roxml
   rspec
+  rubytree
+  simplecov
+  simplecov-html
 
 BUNDLED WITH
    1.11.2
