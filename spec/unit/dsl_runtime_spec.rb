@@ -26,7 +26,7 @@ describe 'dsl_runtime' do
     runtime.serialize(dump_path)
     new_runtime = DslRuntime.load dump_path
     new_classes = get_names new_runtime.instance_variable_get(:@classes)
-    expect(new_classes).to eq classes
+    expect(new_classes).to include(*classes)
   end
 
   it 'marshal_dumps' do
@@ -45,7 +45,7 @@ describe 'dsl_runtime' do
   end
 
   it 'marshal_loads' do
-    docs = [fixture_path('match-rule-01.xml'), fixture_path('match-rule-02.xml')]
+    docs = [fixture_path('match-rule-01.xml')]
     runtime = DslRuntime.new
     runtime.populate(docs)
     def get_names (classes)
@@ -53,8 +53,10 @@ describe 'dsl_runtime' do
     end
     classes = get_names runtime.instance_variable_get(:@classes)
     data = runtime.marshal_dump
-    new_data = runtime.marshal_load data
-    expect(new_data).to be_truthy
+    runtime.marshal_load data
+    classes = get_names runtime.instance_variable_get(:@classes)
+    expect(classes).to include(:MatchRule, :Uri, :NormalRule)
+    expect(classes.size).to eq(3)
 
   end
 
