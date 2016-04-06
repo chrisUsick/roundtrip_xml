@@ -113,7 +113,8 @@ class DslRuntime
   end
 
   def marshal_load(data)
-    @root_classes = data[:root_classes]
+    initialize
+    @root_classes.merge data[:root_classes]
     trees = @root_classes.map {|clazz| hash_to_tree data[:classes], clazz}
     trees.each do |tree|
       tree.postordered_each do |node|
@@ -124,7 +125,7 @@ class DslRuntime
       clazz = job.class
       config = job.config
       clazz.xml_accessor config[:name], transform_accessor_opts(config[:opts])
-    end
+    end if @unprocessed_attrs
   end
 
   def hash_to_tree(hash, root_name, processed = [])
