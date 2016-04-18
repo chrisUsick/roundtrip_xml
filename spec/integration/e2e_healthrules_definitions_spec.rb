@@ -8,7 +8,8 @@ describe 'tranforming dsl which uses an external file of helpers to xml' do
     runtime.populate_raw xml
 
     # evaluates the DSL and verifies that it is a character for character match of the original
-    actual = runtime.evaluate_file(fixture_path('healthrules-dsl.rb'), :HealthRules).get_el.to_xml
+    res = runtime.evaluate_file(fixture_path('healthrules-dsl.rb'), :HealthRules)
+    actual = res.get_el.to_xml
     expect(actual.to_s).to eq xml
   end
 end

@@ -7,3 +7,6 @@ gem 'nokogiri-diff'
 gem 'simplecov'
 gem 'simplecov-html'
 gem 'rubytree'
+gem 'hashdiff'
+gem 'multiset'
+

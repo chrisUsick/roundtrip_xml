@@ -53,9 +53,7 @@ class BaseCleanroom
     plain_accessors = @el.class.plain_accessors
     hash = {}
     @value_holder ||= {}
-    if plain_accessors != 0
-      hash = plain_accessors.inject({}) {|h, a| h[a] = @el.send(a); h}
-    end
+    hash = plain_accessors.inject({}) {|h, a| h[a] = @el.send(a); h}
     child = @runtime.create_cleanroom(clazz)
     child.inherit_properties @value_holder.merge(hash)
 

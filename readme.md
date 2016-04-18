@@ -88,3 +88,17 @@ The basic process of interpreting some DSL file is as follows:
  4. The final output is a ROXML class which can be turned directly into XML.   
  
 Read the class documentation to get more detailed descriptions of the classes.  
+
+
+# Auto-refactoring functionality 
+This is a prototype feature. 
+
+## process 
+
+ 1. ROXML class to a hash format
+ 2. calculate the differences of all elements
+ 3. extract similarities 
+ 4. write sub-classes
+ 5. re-write DSL to utilize sub classes.
+ 
+The main task takes in a group of DSL files to refactor. It will write the sub-classes to a file in the same directory, and modify the DSL files.

@@ -6,8 +6,8 @@ def name_to_sym_helper(name, lower_case = false)
     new_name.to_sym
 end
 module Utils
-  def new_roxml_class name
-    Class.new do
+  def new_roxml_class(name, parent = Object)
+    Class.new(parent) do
       include ROXML
       include PlainAccessors
       xml_convention :dasherize
@@ -18,6 +18,16 @@ module Utils
 
       def self.class_name
         name_to_sym_helper self.tag_name
+      end
+
+      def to_hash
+        attributes.inject({}) do |hash, a|
+          value = a.to_ref(self).to_xml(self)
+          value = value.to_hash if value.respond_to? :to_hash
+
+          hash[a.accessor] = value
+          hash
+        end
       end
     end
   end
