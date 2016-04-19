@@ -9,8 +9,7 @@ describe 'extractor' do
     res = runtime.evaluate_file fixture_path('refactorable-dsl.rb'), :HealthRules
     extractor = Extractor.new res.get_el.healthRule, runtime
 
-    fields = extractor.similar_fields
-    extractor.create_romxl_class fields, :HealthRules
-    pp fields
+    new_objs = extractor.convert_roxml_objs
+    pp new_objs
   end
 end
