@@ -4,6 +4,7 @@ require 'roundtrip_xml/roxml_builder'
 require 'roundtrip_xml/root_cleanroom'
 require 'roundtrip_xml/base_cleanroom'
 require 'roundtrip_xml/utils'
+require 'roundtrip_xml/sexp_dsl_builder'
 require 'tree'
 require 'set'
 # Class which evaluates DSL and read XML files to populate the namespace with classes
@@ -13,22 +14,33 @@ class DslRuntime
     @classes = {}
     @root_classes = Set.new
   end
-  def populate(files)
-    files.each {|f| populate_from_file f }
+  def populate(files, root_method=nil)
+    files.map {|f| populate_from_file f, root_method }
   end
 
-  def populate_from_file (file)
-    populate_raw File.read(file)
+  def populate_from_file (file, root_method=nil)
+    populate_raw File.read(file), root_method
 
   end
 
-  def populate_raw (raw)
+  def populate_raw (raw, root_method = nil)
     builder = RoxmlBuilder.new (Nokogiri::XML(raw).root), @classes
     new_classes = builder.build_classes
     @root_classes << builder.root_class_name
     @classes.merge! new_classes
-  end
+    if root_method
+      roxml_root = fetch(builder.root_class_name).from_xml raw
 
+      extractor = Extractor.new roxml_root.send(root_method), self
+
+      new_objs = extractor.convert_roxml_objs
+      subclasses = extractor.subclasses
+      roxml_root.send("#{root_method}=", new_objs)
+      builder = SexpDslBuilder.new [roxml_root], subclasses, self
+
+      builder.write_roxml_objs
+    end
+  end
 
   def fetch(class_name)
     @classes[class_name]

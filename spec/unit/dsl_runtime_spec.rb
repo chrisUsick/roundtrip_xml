@@ -144,4 +144,14 @@ describe 'dsl_runtime' do
 
     end
   end
+
+  it 'writes refactored code' do
+    docs = [fixture_path('refactorable-dsl.xml')]
+    runtime = DslRuntime.new
+    dsl = runtime.populate(docs, :healthRule)
+
+    expected = fixture('refactorable-dsl-from-builder.rb')
+    expect(dsl[0].strip).to eq(expected.strip)
+
+  end
 end
