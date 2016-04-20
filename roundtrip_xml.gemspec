@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.files       = `git ls-files lib/ -z`.split("\x0")
   s.require_paths = ['lib']
   s.homepage    =
-    'https://github.com/chrisUsick/roundtrip-xml'
+    'https://github.com/chrisUsick/roundtrip_xml'
   s.license       = 'MIT'
 
   s.add_dependency 'roxml', '~> 3.3'
