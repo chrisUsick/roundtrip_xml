@@ -51,12 +51,11 @@ describe 'dsl_runtime' do
     def get_names (classes)
       Set.new classes.keys
     end
-    classes = get_names runtime.instance_variable_get(:@classes)
+    old_classes = get_names runtime.instance_variable_get(:@classes)
     data = runtime.marshal_dump
     runtime.marshal_load data
-    classes = get_names runtime.instance_variable_get(:@classes)
-    expect(classes).to include(:MatchRule, :Uri, :NormalRule)
-    expect(classes.size).to eq(3)
+    new_classes = get_names runtime.instance_variable_get(:@classes)
+    expect(new_classes).to eq(old_classes)
 
   end
 
@@ -144,5 +143,15 @@ describe 'dsl_runtime' do
 
 
     end
+  end
+
+  it 'writes refactored code' do
+    docs = [fixture_path('refactorable-dsl.xml')]
+    runtime = DslRuntime.new
+    dsl = runtime.populate(docs, :healthRule)
+
+    expected = fixture('refactorable-dsl-from-builder.rb')
+    expect(dsl[0].strip).to eq(expected.strip)
+
   end
 end

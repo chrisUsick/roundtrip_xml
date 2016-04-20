@@ -10,10 +10,12 @@ GEM
     cleanroom (1.0.0)
     diff-lcs (1.2.5)
     docile (1.1.5)
+    hashdiff (0.3.0)
     i18n (0.7.0)
     json (1.8.3)
     mini_portile2 (2.0.0)
     minitest (5.8.4)
+    multiset (0.5.1)
     nokogiri (1.6.7.2)
       mini_portile2 (~> 2.0.0.rc2)
     nokogiri-diff (0.2.0)
@@ -35,9 +37,15 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.4.0)
     rspec-support (3.4.1)
+    ruby2ruby (2.3.0)
+      ruby_parser (~> 3.1)
+      sexp_processor (~> 4.0)
+    ruby_parser (3.8.1)
+      sexp_processor (~> 4.1)
     rubytree (0.9.7)
       json (~> 1.8)
       structured_warnings (~> 0.2)
+    sexp_processor (4.7.0)
     simplecov (0.11.2)
       docile (~> 1.1.0)
       json (~> 1.8)
@@ -54,11 +62,15 @@ PLATFORMS
 
 DEPENDENCIES
   cleanroom
+  hashdiff
+  multiset
   nokogiri
   nokogiri-diff
   roxml
   rspec
+  ruby2ruby
   rubytree
+  sexp_processor
   simplecov
   simplecov-html
 
