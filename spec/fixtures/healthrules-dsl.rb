@@ -38,9 +38,16 @@ healthRule do
         operator 'GREATER_THAN'
         conditionExpression ''
         useActiveBaseline 'false'
-        metricExpression :BasicExpression do
-          function'VALUE'
-          metric_name 'Calls per Minute'
+        metricExpression  do
+          type 'leaf'
+          functionType 'VALUE'
+          value '0'
+          isLiteralExpression 'false'
+          displayName 'null'
+          metricDefinition do
+            type 'LOGICAL_METRIC'
+            logicalMetricName 'Calls per Minute'
+          end
         end
       end
     end
