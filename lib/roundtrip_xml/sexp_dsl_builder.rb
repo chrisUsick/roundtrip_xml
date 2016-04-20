@@ -77,5 +77,14 @@ EOF
     processor.process(sexp)
   end
 
+  def write_roxml_objs(root_method)
+    roxml_objs.inject('') do |out, obj|
+      out += write_roxml_obj obj, root_method
+      out += "\n\n"
+      out
+    end
+
+  end
+
 
 end

@@ -3,7 +3,7 @@ require './spec/spec_helper'
 describe 'SexpDslBuilder' do
   it 'does stuff' do
     s = SexpDslBuilder.new nil, nil, nil
-    pp s.exp.to_a
+    # pp s.exp.to_a
     # s.demo
 
   end
@@ -108,6 +108,24 @@ EXP
     # puts actual
     expected = fixture('simple-auto-refactor.rb')
     expect(actual).to eq(expected)
+  end
+
+    it 'refactors all objects' do
+    runtime = DslRuntime.new
+    runtime.populate_from_file fixture_path('refactorable-dsl.xml')
+    res = runtime.evaluate_file fixture_path('refactorable-dsl.rb'), :HealthRules
+    extractor = Extractor.new res.get_el.healthRule, runtime
+
+    new_objs = extractor.convert_roxml_objs
+    subclassess = extractor.subclasses
+
+    builder = SexpDslBuilder.new new_objs, subclassess, runtime
+
+    actual = builder.write_roxml_objs :healthrule
+
+    # puts actual
+    expected = fixture('full-simple-refactor.rb')
+    expect(actual.strip).to eq(expected.strip)
   end
 
 end

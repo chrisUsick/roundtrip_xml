@@ -21,7 +21,6 @@ class RoxmlBuilder
     name_to_sym @root.name
   end
   def build_classes
-    # @root_class.xml_name (@root.name)
     @root.attributes.values.to_a.concat(@root.children.to_a).each do |child|
       default_opts = {from:child.name}
       if is_leaf_element?(child)
