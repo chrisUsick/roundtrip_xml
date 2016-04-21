@@ -28,11 +28,17 @@ class Extractor
   def similar_fields
     keys = Set.new @hashes[0].keys
     diff_keys = Set.new
+    compared = {}
     @hashes.each do |hash_1|
       @hashes.each do |hash_2|
-        diffs = HashDiff.best_diff(hash_1, hash_2).map do |diff|
+        compared[hash_2] ||= Set.new
+        next if hash_1 == hash_2 || compared[hash_1].include?(hash_2)
+        compared[hash_2].add hash_1
+
+        diffs = HashDiff.diff(hash_1, hash_2).map do |diff|
           diff[1].match(/(\w+)\.?/)[1]
         end
+
         diff_keys.merge diffs
       end
     end

@@ -101,8 +101,10 @@ EOF
       out += "\n\n"
       out
     end
-
   end
 
+  def write_full_dsl()
+    write_def_classes + "\n\n" + write_roxml_objs
+  end
 
 end
