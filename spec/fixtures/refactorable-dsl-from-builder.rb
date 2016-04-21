@@ -1,3 +1,11 @@
+define(:Healthrule1, :HealthRule) do
+  enabled("true")
+  isDefault("true")
+  alwaysEnabled("true")
+  durationMin("30")
+  waitTimeMin("30")
+end
+
 controllerVersion('004-002-001-002')
 healthRule(:Healthrule1) do
   name('Business Transaction response time is much higher than normal')

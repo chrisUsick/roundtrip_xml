@@ -9,6 +9,7 @@ task :default => :spec
 
 task :profile do
   xml = File.read 'spec/fixtures/super-large.xml'
+  # xml = File.read 'spec/fixtures/super-large.xml'
   result = RubyProf.profile do
     runtime = DslRuntime.new
     runtime.populate_raw xml, :healthRule

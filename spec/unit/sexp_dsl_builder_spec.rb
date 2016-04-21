@@ -3,7 +3,7 @@ require './spec/spec_helper'
 describe 'SexpDslBuilder' do
   it 'does stuff' do
     s = SexpDslBuilder.new nil, nil, nil
-    pp s.exp.to_a
+    # pp s.exp.to_a
     # s.demo
 
   end
@@ -50,9 +50,9 @@ EXP
 
     expected = <<EXP
 foo do
-  a("a")
-  b("b")
-  c("c")
+  a('a')
+  b('b')
+  c('c')
 end
 EXP
     expect(actual).to eq(expected.strip)
@@ -81,12 +81,12 @@ EXP
 
     expected = <<EXP
 foo do
-  a("a")
+  a('a')
   b do
-    d("d")
-    e("e")
+    d('d')
+    e('e')
   end
-  c("c")
+  c('c')
 end
 EXP
     expect(actual).to eq(expected.strip)
