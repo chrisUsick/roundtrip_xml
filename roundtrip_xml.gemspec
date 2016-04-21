@@ -16,4 +16,10 @@ Gem::Specification.new do |s|
   s.add_dependency 'nokogiri', '~> 1.6'
   s.add_dependency 'cleanroom', '~> 1.0'
   s.add_dependency 'nokogiri-diff', '~> 0.2'
+  s.add_dependency 'ruby2ruby', '~> 2.3'
+  s.add_dependency 'rubytree', '~> 0.9'
+  s.add_dependency 'hashdiff', '~> 0.3'
+  s.add_dependency 'multiset', '~> 0.5'
+  s.add_dependency 'sexp_processor', '~> 4.0'
+
 end
