@@ -59,9 +59,13 @@ class DslRuntime
 
   end
 
-  def evaluate_raw(dsl, root_class)
+  def evaluate_raw(dsl, root_class, &block)
     cleanroom = RootCleanroom.new(fetch(root_class).new, self)
-    cleanroom.evaluate dsl
+    if block_given?
+      cleanroom.evaluate &block
+    else
+      cleanroom.evaluate dsl
+    end
 
   end
 

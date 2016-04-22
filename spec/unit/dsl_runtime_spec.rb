@@ -154,4 +154,15 @@ describe 'dsl_runtime' do
     expect(dsl[0].strip).to eq(expected.strip)
 
   end
+
+  it 'evaluates recurively nested files' do
+    docs = [fixture_path('recursively-nested-elements.xml')]
+    runtime = DslRuntime.new
+    dsl = runtime.populate(docs)
+
+    expected = runtime.evaluate_file fixture_path('recursively-nested-elements.rb'), :HealthRules
+    # expect(dsl[0].strip).to eq(expected.strip)
+    puts expected.get_el
+
+  end
 end
