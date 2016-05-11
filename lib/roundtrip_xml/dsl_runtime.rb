@@ -34,7 +34,7 @@ class DslRuntime
     if root_method
       roxml_root = fetch(builder.root_class_name).from_xml raw
 
-      extractor = Extractor.new roxml_root.send(root_method), self
+      extractor = Extractor2.new roxml_root.send(root_method), self
 
       new_objs = extractor.convert_roxml_objs
       subclasses = extractor.subclasses

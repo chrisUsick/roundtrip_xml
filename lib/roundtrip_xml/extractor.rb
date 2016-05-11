@@ -8,80 +8,76 @@ require 'multiset'
 require 'roundtrip_xml/roxml_subclass_helpers.rb'
 
 class Extractor
-  include Utils
-  attr_reader :subclasses
-  def initialize(roxml_objs, runtime)
+
+  def initialize(roxml_objs, runtime, definitions = nil, &block)
     @roxml_objs = roxml_objs
-    @hashes = @roxml_objs.map { |obj| obj.to_hash }
     @runtime = runtime
-    @subclass_names = Multiset.new
-    @subclasses = []
-  end
-  def list_diffs
-
-    HashDiff.best_diff(@hashes[0], @hashes[6]).sort_by do |diff|
-      m = diff[1].match(/\./)
-      m ? m.size : 0
-    end.map {|diff| diff[1]}
+    if block_given?
+      @definitions = eval_definitions &block
+    elsif definitions.is_a? Hash
+      @definitions = definitions
+    else
+      @definitions = eval_definitions definitions
+    end
   end
 
-  def similar_fields
-    keys = Set.new @hashes[0].keys
-    diff_keys = Set.new
-    compared = {}
-    @hashes.each do |hash_1|
-      @hashes.each do |hash_2|
-        compared[hash_2] ||= Set.new
-        next if hash_1 == hash_2 || compared[hash_1].include?(hash_2)
-        compared[hash_2].add hash_1
-
-        diffs = HashDiff.diff(hash_1, hash_2).map do |diff|
-          diff[1].match(/(\w+)\.?/)[1]
-        end
-
-        diff_keys.merge diffs
-      end
+  def eval_definitions(str = nil, &block)
+    old_names = @runtime.instance_variable_get(:@classes).keys
+    if block_given?
+      @runtime.evaluate_raw '', :HealthRules, &block
+    else
+      @runtime.evaluate_raw str, :HealthRules
     end
-    keys = keys - diff_keys
-    key_hash = keys.inject({}) do |hash, key|
-      hash[key] = @hashes[0][key]
-      hash
+    new_names = @runtime.instance_variable_get(:@classes).keys
+    def_names = new_names - old_names
+    def_names.inject({}) do |out, name|
+      clazz = @runtime.fetch(name)
+      parent = get_root_class clazz
+      obj = clazz.new
+      cleanroom = @runtime.create_cleanroom clazz
+      cleanroom.get_el.process.each { |p| cleanroom.evaluate &p }
+      out[parent] ||= []
+      out[parent] << cleanroom.get_el
+      out
     end
-    [key_hash, diff_keys]
   end
 
-  def create_romxl_class(keys, parent)
-    @subclass_names << parent
-    name = "#{parent.to_s}#{@subclass_names.count(parent)}"
-    clazz = new_roxml_class name, @runtime.fetch(parent) do
-      include RoxmlSubclassHelpers
+  def get_root_class(clazz)
+    super_clazz = @runtime.fetch clazz.superclass.class_name
+    if super_clazz.subclass?
+      get_root_class super_clazz
+    else
+      super_clazz.class_name
     end
-    clazz.defaults = keys
-    @runtime.add_class name, clazz
-    @subclasses << clazz
-    name
   end
 
-  def convert_roxml(obj, keys, class_name)
-    parent = @runtime.fetch(class_name)
-    new = parent.new
-    parent.plain_accessors.each do |new_accessor|
-      old_accessor = new_accessor.to_s.gsub(VAR_SUFIX, '').to_sym
-      new.send "#{new_accessor}=", obj.send(old_accessor)
+  def diff_definition(defin, obj)
+    def_hash = defin.to_hash
+    obj_hash = obj.to_hash
+    diffs = HashDiff.diff(obj_hash, def_hash).map do |diff|
+      ROXMLDiff.new diff[1], diff[2], diff[3]
     end
 
-    keys.each do |accessor|
-      new.send "#{accessor}=", obj.send(accessor)
-    end
-    new
+    diffs
   end
 
   def convert_roxml_objs
-    fields, diff_keys = similar_fields
-    parent_name = @roxml_objs[0].class.class_name
-    name = create_romxl_class fields, parent_name
-    @roxml_objs.map do |roxml|
-      convert_roxml roxml, diff_keys, name
+    def_names = @definitions.keys
+    roxml_objs.map do |obj|
+      name = obj.class.roxml_tag_name
+      if def_names.include? name && diff(@definitions[name], obj)
+
+      end
+
     end
+  end
+end
+
+class ROXMLDiff
+  attr_reader :key, :obj_val, :template_val
+  def initialize(key, obj_val, template_val)
+    @key = key.to_sym
+    @obj_val = obj_val
+    @template_val = template_val
   end
 end

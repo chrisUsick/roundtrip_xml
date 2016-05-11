@@ -12,7 +12,7 @@ describe 'SexpDslBuilder' do
     runtime = DslRuntime.new
     runtime.populate_from_file fixture_path('refactorable-dsl.xml')
     res = runtime.evaluate_file fixture_path('refactorable-dsl.rb'), :HealthRules
-    extractor = Extractor.new res.get_el.healthRule, runtime
+    extractor = Extractor2.new res.get_el.healthRule, runtime
 
     new_objs = extractor.convert_roxml_objs
     subclassess = extractor.subclasses
@@ -96,7 +96,7 @@ EXP
     runtime = DslRuntime.new
     runtime.populate_from_file fixture_path('refactorable-dsl.xml')
     res = runtime.evaluate_file fixture_path('refactorable-dsl.rb'), :HealthRules
-    extractor = Extractor.new res.get_el.healthRule, runtime
+    extractor = Extractor2.new res.get_el.healthRule, runtime
 
     new_objs = extractor.convert_roxml_objs
     subclassess = extractor.subclasses
@@ -114,7 +114,7 @@ EXP
     runtime = DslRuntime.new
     runtime.populate_from_file fixture_path('refactorable-dsl.xml')
     res = runtime.evaluate_file fixture_path('refactorable-dsl.rb'), :HealthRules
-    extractor = Extractor.new res.get_el.healthRule, runtime
+    extractor = Extractor2.new res.get_el.healthRule, runtime
 
     new_objs = extractor.convert_roxml_objs
     subclassess = extractor.subclasses
@@ -134,7 +134,7 @@ EXP
     runtime.populate_raw raw
     roxml_root = runtime.fetch(:HealthRules).from_xml raw
     root_method = :healthRule
-    extractor = Extractor.new roxml_root.send(root_method), runtime
+    extractor = Extractor2.new roxml_root.send(root_method), runtime
 
     new_objs = extractor.convert_roxml_objs
     subclasses = extractor.subclasses
