@@ -1,4 +1,5 @@
 require 'cleanroom'
+require 'roundtrip_xml/utils'
 # Generates cleanroom methods corresponding to all the xml_accessors and plain_accessors of @el
 class BaseCleanroom
   include Cleanroom
@@ -6,7 +7,9 @@ class BaseCleanroom
     @el
   end
 
-  def initialize(el, runtime)
+  attr_reader :show_undefined_params
+  def initialize(el, runtime, show_undefined_params = false)
+    @show_undefined_params = show_undefined_params
     @runtime = runtime
     @el = el
     get_el.attributes.each do |attr|
@@ -39,8 +42,13 @@ class BaseCleanroom
   def expose_attr_accessors()
     get_el.class.plain_accessors.each do |a|
       create_method(a) do |value = nil|
-        return get_el.send(a) unless value
-        get_el.send("#{a}=".to_sym, value) if value
+        if value
+          get_el.send("#{a}=".to_sym, value) if value
+        elsif !value && show_undefined_params
+          return get_el.send(a) || Utils::UndefinedParam.new(a)
+        else
+          return get_el.send(a)
+        end
       end
       self.class.send(:expose, a)
     end
@@ -51,10 +59,9 @@ class BaseCleanroom
 
   def expand(clazz, &block)
     plain_accessors = @el.class.plain_accessors
-    hash = {}
     @value_holder ||= {}
-    hash = plain_accessors.inject({}) {|h, a| h[a] = @el.send(a); h}
-    child = @runtime.create_cleanroom(clazz)
+    hash = plain_accessors.inject({}) {|h, a| h[a] = @el.send(a) || Utils::UndefinedParam.new(a); h}
+    child = @runtime.create_cleanroom(clazz, @show_undefined_params)
     child.inherit_properties hash.merge(@value_holder)
 
     child.evaluate &block

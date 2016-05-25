@@ -73,8 +73,8 @@ class DslRuntime
     BaseCleanroom.new(fetch(root_class).new, self)
   end
 
-  def create_cleanroom(root_class)
-    BaseCleanroom.new(root_class.new, self)
+  def create_cleanroom(root_class, show_undefined_params = false)
+    BaseCleanroom.new(root_class.new, self, show_undefined_params)
   end
 
   def marshal_dump
