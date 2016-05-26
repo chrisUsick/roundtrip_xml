@@ -28,7 +28,7 @@ describe 'Utils::new_roxml_class' do
       b.c = 2
       a.d = 3
       hash = a.to_hash
-      expect(hash).to include({'b' => {'c' => 2}, 'd' => 3})
+      expect(hash).to include({'b' => {'c' => 2, '__class' => :B}, 'd' => 3, '__class' => :A})
     end
   end
 end

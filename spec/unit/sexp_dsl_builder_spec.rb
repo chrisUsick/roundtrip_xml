@@ -2,35 +2,9 @@ require './spec/spec_helper'
 
 describe 'SexpDslBuilder' do
   it 'does stuff' do
-    s = SexpDslBuilder.new nil, nil, nil
+    s = SexpDslBuilder.new nil, nil
     # pp s.exp.to_a
     # s.demo
-
-  end
-
-  it 'writes subclasses' do
-    runtime = DslRuntime.new
-    runtime.populate_from_file fixture_path('refactorable-dsl.xml')
-    res = runtime.evaluate_file fixture_path('refactorable-dsl.rb'), :HealthRules
-    extractor = Extractor2.new res.get_el.healthRule, runtime
-
-    new_objs = extractor.convert_roxml_objs
-    subclassess = extractor.subclasses
-
-    builder = SexpDslBuilder.new new_objs, subclassess, runtime
-
-    actual = builder.write_def_classes
-
-    expected = <<EXP
-define(:Healthrule1, :HealthRule) do
-  enabled("true")
-  isDefault("true")
-  alwaysEnabled("true")
-  durationMin("30")
-  waitTimeMin("30")
-end
-EXP
-    expect(actual).to eq(expected.strip)
 
   end
 
@@ -45,17 +19,15 @@ EXP
     obj.b = 'b'
     obj.c = 'c'
 
-    builder = SexpDslBuilder.new [obj], [], runtime
-    actual = builder.write_roxml_obj obj, :foo
+    builder = SexpDslBuilder.new obj, runtime
+    actual = builder.write_roxml_obj obj
 
     expected = <<EXP
-foo do
-  a('a')
-  b('b')
-  c('c')
-end
+a 'a'
+b 'b'
+c 'c'
 EXP
-    expect(actual).to eq(expected.strip)
+    expect(actual.gsub(' ', '').strip).to eq(expected.gsub(' ', '').strip)
 
   end
 
@@ -76,74 +48,40 @@ EXP
     obj.b.d = 'd'
     obj.b.e = 'e'
 
-    builder = SexpDslBuilder.new [obj], [], runtime
-    actual = builder.write_roxml_obj obj, :foo
+    builder = SexpDslBuilder.new obj, runtime
+    actual = builder.write_roxml_obj obj
 
     expected = <<EXP
-foo do
-  a('a')
-  b do
-    d('d')
-    e('e')
-  end
-  c('c')
+a 'a'
+b do
+  d 'd'
+  e 'e'
 end
+c 'c'
 EXP
-    expect(actual).to eq(expected.strip)
+    expect(actual.gsub(' ', '').strip).to eq(expected.gsub(' ', '').strip)
   end
 
   it 'builds complex dsl' do
     runtime = DslRuntime.new
     runtime.populate_from_file fixture_path('refactorable-dsl.xml')
     res = runtime.evaluate_file fixture_path('refactorable-dsl.rb'), :HealthRules
-    extractor = Extractor2.new res.get_el.healthRule, runtime
+    el = res.get_el
+    templates = fixture('healthrule-helpers.rb')
+    extractor = Extractor.new el, runtime, :HealthRules, templates
 
-    new_objs = extractor.convert_roxml_objs
-    subclassess = extractor.subclasses
+    new_el = extractor.convert_roxml_obj el
 
-    builder = SexpDslBuilder.new new_objs, subclassess, runtime
+    builder = SexpDslBuilder.new new_el, runtime
 
-    actual = builder.write_roxml_obj new_objs[0], :healthrule
-
-    # puts actual
-    expected = fixture('simple-auto-refactor.rb')
-    expect(actual).to eq(expected)
-  end
-
-  it 'refactors all objects' do
-    runtime = DslRuntime.new
-    runtime.populate_from_file fixture_path('refactorable-dsl.xml')
-    res = runtime.evaluate_file fixture_path('refactorable-dsl.rb'), :HealthRules
-    extractor = Extractor2.new res.get_el.healthRule, runtime
-
-    new_objs = extractor.convert_roxml_objs
-    subclassess = extractor.subclasses
-
-    builder = SexpDslBuilder.new new_objs, subclassess, runtime
-
-    actual = builder.write_roxml_objs :healthrule
+    actual = builder.write_roxml_obj new_el
 
     # puts actual
-    expected = fixture('full-simple-refactor.rb')
-    expect(actual.strip).to eq(expected.strip)
+
+    expect(actual.scan(/policyCondition :PolicyCondition2/).size).to eq 4
+    expect(actual.scan(/warningExecutionCriteria :RegularExecutionCriteria/).size).to eq 7
+    expect(actual.scan(/metricExpression :BasicExpression  do/).size).to eq 20
   end
 
-  it 'handles an array property' do
-    runtime = DslRuntime.new
-    raw = fixture('refactorable-dsl-small.xml')
-    runtime.populate_raw raw
-    roxml_root = runtime.fetch(:HealthRules).from_xml raw
-    root_method = :healthRule
-    extractor = Extractor2.new roxml_root.send(root_method), runtime
-
-    new_objs = extractor.convert_roxml_objs
-    subclasses = extractor.subclasses
-    roxml_root.send("#{root_method}=", new_objs)
-    builder = SexpDslBuilder.new [roxml_root], subclasses, runtime
-
-    actual = builder.write_roxml_objs
-    expected = fixture('refactorable-dsl-small.rb')
-    expect(actual.strip).to eq(expected.strip)
-  end
 
 end

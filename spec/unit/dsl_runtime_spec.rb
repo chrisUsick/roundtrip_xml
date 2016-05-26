@@ -146,23 +146,35 @@ describe 'dsl_runtime' do
   end
 
   it 'writes refactored code' do
-    docs = [fixture_path('refactorable-dsl.xml')]
+    doc = fixture('refactorable-dsl.xml')
+    templates = fixture('healthrule-helpers.rb')
     runtime = DslRuntime.new
-    dsl = runtime.populate(docs, :healthRule)
+    runtime.populate_raw doc
+    actual = runtime.write_dsl doc, :HealthRules, :healthRule, templates
 
-    expected = fixture('refactorable-dsl-from-builder.rb')
-    expect(dsl[0].strip).to eq(expected.strip)
+    expect(actual.scan(/policyCondition :PolicyCondition2/).size).to eq 4
+    expect(actual.scan(/warningExecutionCriteria :RegularExecutionCriteria/).size).to eq 7
+    expect(actual.scan(/metricExpression :BasicExpression  do/).size).to eq 20
 
   end
-
-  it 'evaluates recurively nested files' do
-    docs = [fixture_path('recursively-nested-elements.xml')]
+  it 'writes unrefactored code when no helpers are given' do
+    doc = fixture('refactorable-dsl.xml')
     runtime = DslRuntime.new
-    dsl = runtime.populate(docs)
+    runtime.populate_raw doc
+    actual = runtime.write_dsl doc, :HealthRules, :healthRule
 
-    expected = runtime.evaluate_file fixture_path('recursively-nested-elements.rb'), :HealthRules
-    # expect(dsl[0].strip).to eq(expected.strip)
-    puts expected.get_el
+    expect(actual.scan(/healthRule do/).size).to eq 7
+  end
+
+  it 'partitions dsl if a partitioning block is given' do
+    doc = fixture('refactorable-dsl.xml')
+    runtime = DslRuntime.new
+    runtime.populate_raw doc
+    actual = runtime.write_dsl doc, :HealthRules, :healthRule do |rule|
+      rule.criticalExecutionCriteria.policyCondition.type == 'leaf' ? 'simple' : 'complex'
+    end
+    expect(actual['simple'].scan(/healthRule do/).size).to eq 5
+    expect(actual['complex'].scan(/healthRule do/).size).to eq 2
 
   end
 end

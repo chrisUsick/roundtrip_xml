@@ -15,8 +15,6 @@ class Extractor
     @root_class = root_class
     if block_given?
       @definitions = eval_definitions root_class, &block
-    elsif definitions.is_a? Hash
-      @definitions = definitions
     else
       @definitions = eval_definitions root_class, definitions
     end
@@ -73,7 +71,7 @@ class Extractor
 
   def convert_roxml_objs
     def_names = @definitions.keys
-    roxml_objs.map do |obj|
+    @roxml_objs.map do |obj|
       convert_roxml_obj obj
     end
   end
@@ -81,7 +79,7 @@ class Extractor
   def convert_roxml_obj (obj)
     name = obj.class.class_name
     defs = @definitions[name]
-    return obj unless defs && defs.size > 0
+
     defs.each do |defin|
       diffs = diff_definition(defin, obj)
       if diffs.all? {|diff| diff.template_val.is_a?(Utils::UndefinedParam) || diff.template_val == nil }
@@ -92,11 +90,21 @@ class Extractor
           values
         end
         set_attributes new_obj, param_values
-        return new_obj
-      else
-        return obj
+        # return convert_roxml_obj new_obj
+        obj = new_obj
+      end
+    end if defs
+
+    obj.class.roxml_attrs.each do |a|
+      if a.array?
+        elements = obj.send(a.accessor).map {|el| convert_roxml_obj el}
+        obj.send a.setter.to_sym, elements
+      elsif a.sought_type.class == Class
+        current_value = obj.send(a.accessor)
+        obj.send a.setter.to_sym, convert_roxml_obj(current_value) if current_value
       end
     end
+    obj
   end
 
   def set_attributes(obj, params)

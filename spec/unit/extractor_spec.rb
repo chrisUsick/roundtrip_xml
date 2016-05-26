@@ -195,13 +195,18 @@ describe 'extractor' do
   end
 
   describe '#convert_roxml_obj' do
-    def convert_roxml_obj_helper(obj, template)
+    def convert_roxml_obj_helper(obj, template, obj_class = :HealthRule)
       runtime = DslRuntime.new
-      runtime.populate_raw fixture('healthrules01.xml')
-      obj = runtime.evaluate_raw('', :HealthRule, &obj).get_el
-      extractor = Extractor.new [runtime.fetch(:HealthRule).new], runtime, :HealthRules, &template
+      runtime.populate_raw fixture('healthrules02.xml')
+      if obj.is_a? String
+        obj = runtime.evaluate_file(obj, obj_class).get_el
+      else
+        obj = runtime.evaluate_raw('', obj_class, &obj).get_el
+      end
+      extractor = Extractor.new nil, runtime, :HealthRules, &template
       [runtime, obj, extractor]
     end
+
     it 'converts nested object to a template with no parameters' do
       obj = Proc.new do
         enabled true
@@ -255,7 +260,7 @@ describe 'extractor' do
       expect(new_obj.aggregate_type).to eq 'NONE'
     end
 
-    it 'doesn\'t converts object to template with parameter when value isn\'t available' do
+    it 'doesnt converts object to template with parameter when value isnt available' do
 
       obj = Proc.new do
         enabled true
@@ -277,6 +282,93 @@ describe 'extractor' do
       runtime, roxml_obj, extractor = convert_roxml_obj_helper obj, template
       new_obj = extractor.convert_roxml_obj roxml_obj
       expect(new_obj).to eq roxml_obj
+    end
+
+    it 'refactors an element with multiple children' do
+
+      obj = Proc.new do
+        healthRule do
+          enabled true
+          description 'foo'
+        end
+        healthRule do
+          enabled true
+          description 'bar'
+        end
+        healthRule do
+          enabled true
+          description 'baz'
+        end
+      end
+      template = Proc.new do
+        define :BaseHealthrule, :HealthRule do
+          enabled true
+        end
+      end
+
+      runtime, roxml_obj, extractor = convert_roxml_obj_helper obj, template, :HealthRules
+      healthrules = extractor.convert_roxml_obj(roxml_obj).healthRule
+
+      expect(healthrules.size).to eq 3
+      healthrules.each do |r|
+        expect(r).to be_an_instance_of(runtime.fetch(:BaseHealthrule))
+      end
+    end
+
+    it 'matches multiple parameters' do
+      obj = Proc.new do
+        type 'leaf'
+        functionType 'VALUE'
+        value '0'
+        isLiteralExpression 'false'
+        displayName 'null'
+        metricDefinition do
+          type 'LOGICAL_METRIC'
+          logicalMetricName 'Average Response Time (ms)'
+        end
+      end
+
+      template = Proc.new do
+        define :BasicExpression, :MetricExpression, :function, :metric_name do
+          type 'leaf'
+          functionType function
+          value '0'
+          isLiteralExpression 'false'
+          displayName 'null'
+          metricDefinition do
+            type 'LOGICAL_METRIC'
+            logicalMetricName metric_name
+          end
+        end
+      end
+
+      runtime, roxml_obj, extractor = convert_roxml_obj_helper obj, template, :MetricExpression
+      basic = extractor.convert_roxml_obj roxml_obj
+      expect(basic.function).to eq 'VALUE'
+      expect(basic.metric_name).to eq 'Average Response Time (ms)'
+    end
+
+    it 'converts multiple templates per element' do
+      obj = fixture_path 'refactorable-dsl.rb'
+      template = Proc.new do
+        define :BasicExpression, :MetricExpression, :function, :metric_name do
+          type 'leaf'
+          functionType function
+          value '0'
+          isLiteralExpression 'false'
+          displayName 'null'
+          metricDefinition do
+            type 'LOGICAL_METRIC'
+            logicalMetricName metric_name
+          end
+        end
+      end
+      runtime, roxml_obj, extractor = convert_roxml_obj_helper obj, template, :HealthRules
+      health_rules = extractor.convert_roxml_obj roxml_obj
+      rule = health_rules.healthRule[2]
+      expect(rule.criticalExecutionCriteria.policyCondition.metricExpression).to be_an_instance_of runtime.fetch(:BasicExpression)
+      expect(rule.warningExecutionCriteria.policyCondition.metricExpression).to be_an_instance_of runtime.fetch(:BasicExpression)
+
     end
   end
 end
