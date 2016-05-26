@@ -1,3 +1,4 @@
+require 'roundtrip_xml/utils'
 module PlainAccessors
   def self.included(base)
     base.extend ClassMethods
@@ -9,7 +10,10 @@ module PlainAccessors
       @plain_accessors[name] = default
       attr_writer name
       define_method(name) do
-        instance_variable_get "@#{name}" || @plain_accessors[name]
+        val = instance_variable_get "@#{name}"
+        val
+        # @plain_accessors is actually nil here
+        # val.nil? ? @plain_accessors[name] : val
       end
     end
 

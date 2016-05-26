@@ -10,6 +10,7 @@ class RootCleanroom < BaseCleanroom
       # simply using @@params is referring to `AContainer`
       # hash = self.class_variable_defined?(:@@block) ? self.class_variable_get(:@@block) : {}
       # hash[name] = block
+      self.instance_variable_set :@is_subclass, true
       self.instance_variable_set(:@block, block)
       params.each do |param|
         plain_accessor param
@@ -34,8 +35,8 @@ class RootCleanroom < BaseCleanroom
         else
           [proc]
         end
-
       end
+
     end
     @runtime.add_class name, new_class
   end

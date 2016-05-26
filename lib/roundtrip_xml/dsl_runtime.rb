@@ -15,34 +15,54 @@ class DslRuntime
     @classes = {}
     @root_classes = Set.new
   end
-  def populate(files, root_method=nil)
-    files.map {|f| populate_from_file f, root_method }
+  def populate(files)
+    files.map {|f| populate_from_file f }
   end
 
-  def populate_from_file (file, root_method=nil)
-    populate_raw File.read(file), root_method
+  def populate_from_file (file)
+    populate_raw File.read(file)
 
   end
 
   ##
   # @param root_method Symbol   The method of the ROXML object to access its children
-  def populate_raw (raw, root_method = nil)
+  def populate_raw (raw)
     builder = RoxmlBuilder.new (Nokogiri::XML(raw).root), @classes
     new_classes = builder.build_classes
     @root_classes << builder.root_class_name
     @classes.merge! new_classes
-    if root_method
-      roxml_root = fetch(builder.root_class_name).from_xml raw
+  end
 
-      extractor = Extractor.new roxml_root.send(root_method), self
+  # @param block Proc This proc is passed each health rule and must return a string value which specifies the partition for it
+  def write_dsl(xml, root_class_name, root_method, helpers = '', &block)
+    roxml_root = fetch(root_class_name).from_xml xml
 
-      new_objs = extractor.convert_roxml_objs
-      subclasses = extractor.subclasses
-      roxml_root.send("#{root_method}=", new_objs)
-      builder = SexpDslBuilder.new [roxml_root], subclasses, self
+    extractor = Extractor.new roxml_root.send(root_method), self, root_class_name, helpers
 
-      builder.write_full_dsl
+    new_objs = extractor.convert_roxml_objs
+    if block_given?
+      partitions = {}
+      new_objs.each do |obj|
+        partition = yield obj
+        partitions[partition] ||= []
+        partitions[partition] << obj
+      end
+      partitions
+      partitions.inject({}) do |out, (partition, objs)|
+        out[partition] = write_dsl_helper roxml_root, root_method, objs
+        out
+      end
+    else
+      write_dsl_helper roxml_root, root_method, new_objs
     end
+
+  end
+
+  def write_dsl_helper(root, root_method, objs)
+    root.send("#{root_method}=", objs)
+    builder = SexpDslBuilder.new root, self
+
+    builder.write_full_dsl root_method
   end
 
   def fetch(class_name)
@@ -73,8 +93,8 @@ class DslRuntime
     BaseCleanroom.new(fetch(root_class).new, self)
   end
 
-  def create_cleanroom(root_class)
-    BaseCleanroom.new(root_class.new, self)
+  def create_cleanroom(root_class, show_undefined_params = false)
+    BaseCleanroom.new(root_class.new, self, show_undefined_params)
   end
 
   def marshal_dump
