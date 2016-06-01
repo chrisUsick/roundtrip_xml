@@ -78,7 +78,8 @@ EOF
 
     sexp = Sexp.from_array s
     processor = Ruby2Ruby.new
-    processor.process(sexp).gsub("\"", "'").gsub(/[\(\)]/, ' ')
+    str = processor.process(sexp)
+    str.gsub(/\((.*)\)/, ' \\1').gsub(/"([^'\n]+)"/, "'\\1'")
   end
 
   def write_full_dsl(root_method)

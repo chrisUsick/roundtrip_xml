@@ -14,18 +14,21 @@ describe 'SexpDslBuilder' do
     clazz.xml_accessor :a
     clazz.xml_accessor :b
     clazz.xml_accessor :c
+    clazz.xml_accessor :d
     obj = clazz.new
-    obj.a = 'a'
-    obj.b = 'b'
-    obj.c = 'c'
+    obj.a = "a's"
+    obj.b = 'bb'
+    obj.c = 'c - c'
+    obj.d = 'd (d)'
 
     builder = SexpDslBuilder.new obj, runtime
     actual = builder.write_roxml_obj obj
 
     expected = <<EXP
-a 'a'
-b 'b'
-c 'c'
+a "a's"
+b 'bb'
+c 'c - c'
+d 'd (d)'
 EXP
     expect(actual.gsub(' ', '').strip).to eq(expected.gsub(' ', '').strip)
 
@@ -80,7 +83,7 @@ EXP
 
     expect(actual.scan(/policyCondition :PolicyCondition2/).size).to eq 4
     expect(actual.scan(/warningExecutionCriteria :RegularExecutionCriteria/).size).to eq 7
-    expect(actual.scan(/metricExpression :BasicExpression  do/).size).to eq 20
+    expect(actual.scan(/metricExpression :BasicExpression do/).size).to eq 20
   end
 
 

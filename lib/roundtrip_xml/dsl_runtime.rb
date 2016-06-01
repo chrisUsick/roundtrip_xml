@@ -48,14 +48,15 @@ class DslRuntime
         partitions[partition] << obj
       end
       partitions
-      partitions.inject({}) do |out, (partition, objs)|
+      dsl = partitions.inject({}) do |out, (partition, objs)|
         out[partition] = write_dsl_helper roxml_root, root_method, objs
         out
       end
     else
-      write_dsl_helper roxml_root, root_method, new_objs
+      dsl = write_dsl_helper roxml_root, root_method, new_objs
     end
 
+    dsl
   end
 
   def write_dsl_helper(root, root_method, objs)
@@ -73,14 +74,16 @@ class DslRuntime
     @classes[name] = clazz
   end
 
-  def evaluate_file(path, root_class)
+  def evaluate_file(path, root_class, templates = [])
     cleanroom = RootCleanroom.new(fetch(root_class).new, self)
+    templates.each { |t| cleanroom.evaluate_file t }
     cleanroom.evaluate_file path
 
   end
 
-  def evaluate_raw(dsl, root_class, &block)
+  def evaluate_raw(dsl, root_class, templates = [], &block)
     cleanroom = RootCleanroom.new(fetch(root_class).new, self)
+    templates.each { |t| cleanroom.evaluate_file t }
     if block_given?
       cleanroom.evaluate &block
     else
@@ -124,7 +127,7 @@ class DslRuntime
   def deserialize_class(node, config)
     clazz = fetch(node.name) || new_roxml_class(config[:xml_name])
     config[:attrs].each do |attr|
-      type_is_parent = node.parentage && node.parentage.any? {|n| n.name == attr[:opts][:as]}
+      type_is_parent = node.parentage && (node.parentage << node).any? {|n| n.name == attr[:opts][:as]}
       if type_is_parent
         add_unprocessed_attr attr, clazz
       else

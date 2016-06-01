@@ -88,6 +88,9 @@ describe 'dsl_runtime' do
       <<-XML
 <a>
   <b>
+    <b>
+      <e>quux</e>
+    </b>
     <a>
       <b>
         <e>foo</e>
@@ -137,7 +140,7 @@ describe 'dsl_runtime' do
       c_class = classes[:C]
       d_class = classes[:D]
       expect_attrs(a_class, b: b_class, c: c_class)
-      expect_attrs(b_class, a: a_class, e: :text)
+      expect_attrs(b_class, a: a_class, b: b_class, e: :text)
       expect_attrs(c_class, d: d_class)
       expect_attrs(d_class, b: b_class)
 
@@ -154,7 +157,7 @@ describe 'dsl_runtime' do
 
     expect(actual.scan(/policyCondition :PolicyCondition2/).size).to eq 4
     expect(actual.scan(/warningExecutionCriteria :RegularExecutionCriteria/).size).to eq 7
-    expect(actual.scan(/metricExpression :BasicExpression  do/).size).to eq 20
+    expect(actual.scan(/metricExpression :BasicExpression do/).size).to eq 20
 
   end
   it 'writes unrefactored code when no helpers are given' do
