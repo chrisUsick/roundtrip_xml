@@ -42,9 +42,9 @@ class BaseCleanroom
   def expose_attr_accessors()
     get_el.class.plain_accessors.each do |a|
       create_method(a) do |value = nil|
-        if value
-          get_el.send("#{a}=".to_sym, value) if value
-        elsif !value && show_undefined_params
+        if !value.nil?
+          get_el.send("#{a}=".to_sym, value)
+        elsif value.nil? && show_undefined_params
           return get_el.send(a) || Utils::UndefinedParam.new(a)
         else
           return get_el.send(a)
@@ -60,7 +60,7 @@ class BaseCleanroom
   def expand(clazz, &block)
     plain_accessors = @el.class.plain_accessors
     @value_holder ||= {}
-    hash = plain_accessors.inject({}) {|h, a| h[a] = @el.send(a) || Utils::UndefinedParam.new(a); h}
+    hash = plain_accessors.inject({}) {|h, a| h[a] = @el.send(a).nil? ?  Utils::UndefinedParam.new(a) : @el.send(a); h}
     child = @runtime.create_cleanroom(clazz, @show_undefined_params)
     child.inherit_properties hash.merge(@value_holder)
 
