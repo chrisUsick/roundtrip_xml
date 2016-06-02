@@ -37,7 +37,7 @@ end
     expect(el.c.d.f.g).to eq 3
   end
 
-  it 'xhandles multiple subclasses' do
+  it 'handles multiple subclasses' do
     xml = fixture('refactorable-dsl.xml')
     runtime = DslRuntime.new
     runtime.populate_raw(xml)
@@ -99,6 +99,58 @@ end
 
   end
 
+  context 'top level templates' do
+    let(:runtime) do
+      xml = fixture('refactorable-dsl.xml')
+      runtime = DslRuntime.new
+      runtime.populate_raw(xml)
+      runtime
+    end
+    it 'raises exception if the template doesnt extend the root class' do
+      expect do
+        runtime.evaluate_raw(nil, :HealthRules) do
+          define :Foo, :PolicyCondition do
+            type 'leaf'
+          end
+
+          apply_template :Foo
+        end
+      end.to raise_error(ArgumentError)
 
 
+    end
+
+    it 'applies a root template' do
+
+      res = runtime.evaluate_raw(nil, :HealthRules) do
+        define :DefaultRules, :HealthRules,
+               :app, :rule1_status, :rule2_status do
+          healthRule do
+            name "#{app} - rule 1"
+            enabled rule1_status
+          end
+
+          healthRule do
+            name "#{app} - rule 2"
+            enabled rule2_status
+          end
+        end
+        apply_template :DefaultRules do
+          app 'sample app'
+          rule1_status true
+          rule2_status false
+        end
+      end
+
+      def rule_name(number)
+        "sample app - rule #{number}"
+      end
+
+      rule1, rule2 = res.get_el.healthRule
+      expect(rule1.name).to eq rule_name(1)
+      expect(rule1.enabled).to be_truthy
+      expect(rule2.name).to eq rule_name(2)
+      expect(rule2.enabled).to be_falsey
+    end
+  end
 end

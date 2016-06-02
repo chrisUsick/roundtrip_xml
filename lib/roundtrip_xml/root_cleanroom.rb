@@ -42,6 +42,17 @@ class RootCleanroom < BaseCleanroom
   end
   expose(:define)
 
+  def apply_template(name, &block)
+    clazz = @runtime.fetch name
+    raise ArgumentError, "#{name} must extend #{get_el.class.class_name}" unless clazz.ancestors.any? {|p| p == get_el.class}
+
+    expanded_template = expand clazz, &block
+
+    @el = expanded_template
+  end
+  expose(:apply_template)
+
+
   def use_file(path)
     self.evaluate_file(path)
   end
