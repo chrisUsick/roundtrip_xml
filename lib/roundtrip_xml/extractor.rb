@@ -57,7 +57,7 @@ class Extractor
       h.delete '__class'
     end
     diffs = HashDiff.diff(obj_hash, def_hash).map do |diff|
-      ROXMLDiff.new diff[1], from_hash(diff[2]), diff[3]
+      ROXMLDiff.new diff[0], diff[1], from_hash(diff[2]), diff[3]
     end
 
     diffs
@@ -82,7 +82,7 @@ class Extractor
 
     defs.each do |defin|
       diffs = diff_definition(defin, obj)
-      if diffs.all? {|diff| diff.template_val.is_a?(Utils::UndefinedParam) || diff.template_val == nil }
+      if diffs.all? {|diff| diff.operation == '~' && (diff.template_val.is_a?(Utils::UndefinedParam) || diff.template_val == nil) }
         new_obj = defin.class.new
         param_values = diffs.inject({}) do |values, diff|
           name = diff.template_val ? diff.template_val.name : diff.key
@@ -97,7 +97,8 @@ class Extractor
 
     obj.class.roxml_attrs.each do |a|
       if a.array?
-        elements = obj.send(a.accessor).map {|el| convert_roxml_obj el}
+        elements = a.sought_type.class == Class ?
+          obj.send(a.accessor).map {|el| convert_roxml_obj el} : obj.send(a.accessor)
         obj.send a.setter.to_sym, elements
       elsif a.sought_type.class == Class
         current_value = obj.send(a.accessor)
@@ -110,17 +111,62 @@ class Extractor
   def set_attributes(obj, params)
     params.each do |param, val|
       methods = param.to_s.split '.'
-      # set_deep_attribute obj, methods, val
-      obj.send "#{param}=", val
+      methods << val
+      set_deep_attributes obj, methods
+      # obj.send "#{param}=", val
     end
 
+  end
+
+  def set_deep_attributes(obj, methods)
+    index = methods[0].match(/\[(\d+)\]/)
+    child = index ? nil : obj.send(methods[0])
+    method = methods[0]
+    method.gsub!(/\[\d+\]/, '')
+    if child
+      set_deep_attributes child, methods[1..methods.size]
+    else
+      if index
+        arr = obj.send(method) || []
+        arr[Integer(index[1])] = methods[1..1][0] # hacky way to get second element
+        obj.send("#{method}=", arr)
+      else
+        obj.send(methods[0] + '=', set_deep_attributes_helper(obj, methods))
+      end
+    end
+  end
+
+  def set_deep_attributes_helper(obj, methods)
+    method = methods.shift
+    index = method.match(/\[(\d+)\]/)
+    return obj.send(method + '=', methods.first) if !index && methods.size == 1
+
+    method.gsub!(/\[\d+\]/, '')
+    child = obj.send(method)
+    unless child || methods.size == 1
+      clazz_name = method.dup
+      clazz_name[0] = clazz_name[0].upcase
+      child = @runtime.fetch(clazz_name.to_sym).new
+      obj.send("#{method}=", child)
+
+    end
+    if index
+      arr = obj.send(method) || []
+      arr[Integer(index[1])] = methods.first
+      obj.send("#{method}=", arr)
+    else
+      obj.send(method + '=', set_deep_attributes_helper(child, methods))
+    end
+
+    child.is_a?(Array) ? obj : child || obj
   end
 
 end
 
 class ROXMLDiff
-  attr_reader :key, :obj_val, :template_val
-  def initialize(key, obj_val, template_val)
+  attr_reader :operation, :key, :obj_val, :template_val
+  def initialize(operation, key, obj_val, template_val)
+    @operation = operation
     @key = key.to_sym
     @obj_val = obj_val
     @template_val = template_val

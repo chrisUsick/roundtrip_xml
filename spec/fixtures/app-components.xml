@@ -1,0 +1,63 @@
+<health-rule>
+  <name>Business Transaction response time is over static threshold</name>
+  <type>BUSINESS_TRANSACTION</type>
+  <description/>
+  <enabled>false</enabled>
+  <is-default>false</is-default>
+  <always-enabled>true</always-enabled>
+  <duration-min>30</duration-min>
+  <wait-time-min>30</wait-time-min>
+  <affected-entities-match-criteria>
+    <affected-bt-match-criteria>
+      <type>BTS_OF_SPFICIC_TIERS</type>
+      <application-components>
+        <application-component>atv</application-component>
+        <application-component>config</application-component>
+        <application-component>cookie</application-component>
+        <application-component>cus</application-component>
+        <application-component>emp</application-component>
+        <application-component>epsilon</application-component>
+        <application-component>geosvc</application-component>
+        <application-component>payments</application-component>
+        <application-component>push-api</application-component>
+        <application-component>push-trigger</application-component>
+        <application-component>shieldgsisingester</application-component>
+        <application-component>shieldprx</application-component>
+        <application-component>sso</application-component>
+        <application-component>subman</application-component>
+        <application-component>thor</application-component>
+        <application-component>userman</application-component>
+        <application-component>videourl</application-component>
+        <application-component>vts</application-component>
+        <application-component>vzauth</application-component>
+      </application-components>
+    </affected-bt-match-criteria>
+  </affected-entities-match-criteria>
+  <critical-execution-criteria>
+    <entity-aggregation-scope>
+      <type>ANY</type>
+      <value>0</value>
+    </entity-aggregation-scope>
+    <policy-condition>
+      <type>leaf</type>
+      <display-name>Average Response Time (ms) Baseline Condition</display-name>
+      <condition-value-type>ABSOLUTE</condition-value-type>
+      <condition-value>1000.0</condition-value>
+      <operator>GREATER_THAN</operator>
+      <condition-expression/>
+      <use-active-baseline>false</use-active-baseline>
+      <trigger-on-no-data>false</trigger-on-no-data>
+      <metric-expression>
+        <type>leaf</type>
+        <function-type>VALUE</function-type>
+        <value>0</value>
+        <is-literal-expression>false</is-literal-expression>
+        <display-name>null</display-name>
+        <metric-definition>
+          <type>LOGICAL_METRIC</type>
+          <logical-metric-name>Average Response Time (ms)</logical-metric-name>
+        </metric-definition>
+      </metric-expression>
+    </policy-condition>
+  </critical-execution-criteria>
+</health-rule>

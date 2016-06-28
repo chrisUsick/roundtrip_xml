@@ -43,11 +43,13 @@ EOF
     obj.attributes.each do |attr|
       val = obj.send attr.accessor
       next unless val
-      # if !val || (is_subclass && obj.class.defaults.keys.include?(attr.accessor))
-      #   next
-      # end
+
       if attr.sought_type.class == Symbol
-        accessors << [:call, nil, attr.accessor, [:str, val]]
+        if val.is_a? Array
+          val.each {|v| accessors << [:call, nil, attr.accessor, [:str, v]]}
+        else
+          accessors << [:call, nil, attr.accessor, [:str, val]]
+        end
       elsif val.class == Array
         val.each { |v| accessors << create_sexp_for_roxml_obj(v, attr.accessor) }
       else
@@ -79,7 +81,7 @@ EOF
     sexp = Sexp.from_array s
     processor = Ruby2Ruby.new
     str = processor.process(sexp)
-    str.gsub(/\((.*)\)/, ' \\1').gsub(/"([^'\n]+)"/, "'\\1'")
+    str.gsub(/([^"])\(([^\(\)]*|".*")\)([^"])([^{]|$)/, '\\1 \\2\\3\\4').gsub(/"([^'\n]+)"/, "'\\1'")
   end
 
   def write_full_dsl(root_method)

@@ -315,6 +315,9 @@ describe 'extractor' do
       end
     end
 
+
+
+
     it 'matches multiple parameters' do
       obj = Proc.new do
         type 'leaf'
@@ -369,6 +372,20 @@ describe 'extractor' do
       expect(rule.criticalExecutionCriteria.policyCondition.metricExpression).to be_an_instance_of runtime.fetch(:BasicExpression)
       expect(rule.warningExecutionCriteria.policyCondition.metricExpression).to be_an_instance_of runtime.fetch(:BasicExpression)
 
+    end
+
+    it 'handles deep attributes' do
+      runtime = DslRuntime.new
+      xml = fixture 'healthrules03.xml'
+      runtime.populate_raw xml
+      obj = runtime.fetch(:HealthRule).from_xml fixture('app-components.xml')
+      extractor = Extractor.new [obj], runtime, :HealthRule, fixture('_templates.rb')
+      new_obj = extractor.convert_roxml_objs
+      components = new_obj[0].affectedEntitiesMatchCriteria.affectedBtMatchCriteria.applicationComponents.applicationComponent
+      expect(components.size).to eq 19
+      components.each do |c|
+        expect(c).to be_an_instance_of String
+      end
     end
   end
 end

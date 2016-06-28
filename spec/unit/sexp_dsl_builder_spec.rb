@@ -11,24 +11,24 @@ describe 'SexpDslBuilder' do
   it 'writes a simple roxml object' do
     runtime = DslRuntime.new
     clazz = runtime.new_roxml_class 'Foo'
-    clazz.xml_accessor :a
-    clazz.xml_accessor :b
-    clazz.xml_accessor :c
-    clazz.xml_accessor :d
+    clazz.xml_accessor :a_attr
+    clazz.xml_accessor :b_attr
+    clazz.xml_accessor :c_attr
+    clazz.xml_accessor :d_attr
     obj = clazz.new
-    obj.a = "a's"
-    obj.b = 'bb'
-    obj.c = 'c - c'
-    obj.d = 'd (d)'
+    obj.a_attr = "a's"
+    obj.b_attr = 'bb'
+    obj.c_attr = 'c - c'
+    obj.d_attr = 'd (d)'
 
     builder = SexpDslBuilder.new obj, runtime
     actual = builder.write_roxml_obj obj
 
     expected = <<EXP
-a "a's"
-b 'bb'
-c 'c - c'
-d 'd (d)'
+a_attr "a's"
+b_attr 'bb'
+c_attr 'c - c'
+d_attr 'd (d)'
 EXP
     expect(actual.gsub(' ', '').strip).to eq(expected.gsub(' ', '').strip)
 
@@ -38,15 +38,18 @@ EXP
     runtime = DslRuntime.new
     foo_class = runtime.new_roxml_class 'Foo'
     b_class = runtime.new_roxml_class 'B'
+    c_class = runtime.new_roxml_class 'C'
 
     foo_class.xml_accessor :a
     foo_class.xml_accessor :b, as: b_class
-    foo_class.xml_accessor :c
+    foo_class.xml_accessor :c, as: c_class
     b_class.xml_accessor :d
     b_class.xml_accessor :e
+    c_class.xml_accessor :f
     obj = foo_class.new
     obj.a = 'a'
-    obj.c = 'c'
+    obj.c = c_class.new
+    obj.c.f = 'f'
     obj.b = b_class.new
     obj.b.d = 'd'
     obj.b.e = 'e'
@@ -60,7 +63,7 @@ b do
   d 'd'
   e 'e'
 end
-c 'c'
+c { f 'f'}
 EXP
     expect(actual.gsub(' ', '').strip).to eq(expected.gsub(' ', '').strip)
   end
@@ -86,5 +89,27 @@ EXP
     expect(actual.scan(/metricExpression :BasicExpression do/).size).to eq 20
   end
 
+  it 'can parse nested multiple children' do
+      runtime = DslRuntime.new
+      xml = fixture('array-elements.xml')
+      runtime.populate_raw xml
+      roxml_root = runtime.fetch(:HealthRules).from_xml xml
+      healthrule = roxml_root.healthRule
+      roxml_root.healthRule = [healthrule]
+
+      extractor = Extractor.new roxml_root.healthRule, runtime, :HealthRules, ''
+      new_objs = extractor.convert_roxml_objs
+
+
+      builder = SexpDslBuilder.new roxml_root, runtime
+
+      dsl = builder.write_full_dsl :healthRule
+      names = ['atv','config','cookie','cus','emp','epsilon','geosvc','payments','push-api','push-trigger','shieldgsisingester','shieldprx','sso','subman','thor','userman','videourl','vts','vzauth']
+
+      names.each do |name|
+        expect(dsl).to include "applicationComponent '#{name}'"
+      end
+
+    end
 
 end
