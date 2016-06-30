@@ -1,3 +1,21 @@
+PATH
+  remote: ../
+  specs:
+    roundtrip_xml (0.2.2)
+      cleanroom (~> 1.0)
+      differ (~> 0.1)
+      hashdiff (~> 0.3)
+      multiset (~> 0.5)
+      nokogiri (~> 1.6)
+      nokogiri-diff (~> 0.2)
+      roxml (~> 3.3)
+      ruby2ruby (~> 2.3)
+      rubytree (~> 0.9)
+      sexp_processor (~> 4.0)
+    roxml (3.3.1)
+      activesupport (>= 2.3.0)
+      nokogiri (>= 1.3.3)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -15,16 +33,14 @@ GEM
     i18n (0.7.0)
     json (1.8.3)
     mini_portile2 (2.0.0)
-    minitest (5.8.4)
+    minitest (5.9.0)
     multiset (0.5.1)
     nokogiri (1.6.7.2)
       mini_portile2 (~> 2.0.0.rc2)
     nokogiri-diff (0.2.0)
       nokogiri (~> 1.5)
       tdiff (~> 0.3, >= 0.3.2)
-    roxml (3.3.1)
-      activesupport (>= 2.3.0)
-      nokogiri (>= 1.3.3)
+    rake (11.2.2)
     rspec (3.4.0)
       rspec-core (~> 3.4.0)
       rspec-expectations (~> 3.4.0)
@@ -38,6 +54,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.4.0)
     rspec-support (3.4.1)
+    ruby-prof (0.15.9)
     ruby2ruby (2.3.0)
       ruby_parser (~> 3.1)
       sexp_processor (~> 4.0)
@@ -68,8 +85,11 @@ DEPENDENCIES
   multiset
   nokogiri
   nokogiri-diff
+  rake
+  roundtrip_xml!
   roxml
   rspec
+  ruby-prof
   ruby2ruby
   rubytree
   sexp_processor

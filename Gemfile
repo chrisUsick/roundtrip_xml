@@ -12,4 +12,6 @@ gem 'multiset'
 gem 'sexp_processor'
 gem 'ruby2ruby'
 gem 'differ'
-
+gem 'ruby-prof'
+gem 'roundtrip_xml', path: '../'
+gem 'rake'
