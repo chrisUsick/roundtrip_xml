@@ -11,4 +11,5 @@ gem 'hashdiff'
 gem 'multiset'
 gem 'sexp_processor'
 gem 'ruby2ruby'
+gem 'differ'
 

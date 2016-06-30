@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'ruby2ruby', '~> 2.3'
   s.add_dependency 'rubytree', '~> 0.9'
   s.add_dependency 'hashdiff', '~> 0.3'
+  s.add_dependency 'differ', '~> 0.1'
   s.add_dependency 'multiset', '~> 0.5'
   s.add_dependency 'sexp_processor', '~> 4.0'
 

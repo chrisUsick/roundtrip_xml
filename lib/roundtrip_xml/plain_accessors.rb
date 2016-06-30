@@ -5,9 +5,9 @@ module PlainAccessors
   end
 
   module ClassMethods
-    def plain_accessor(name, default = nil)
+    def plain_accessor(name, matcher = /(\S*)/)
       @plain_accessors ||= {}
-      @plain_accessors[name] = default
+      @plain_accessors[name] = matcher
       attr_writer name
       define_method(name) do
         val = instance_variable_get "@#{name}"

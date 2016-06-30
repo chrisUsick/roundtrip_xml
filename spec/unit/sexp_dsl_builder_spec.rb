@@ -74,7 +74,7 @@ EXP
     res = runtime.evaluate_file fixture_path('refactorable-dsl.rb'), :HealthRules
     el = res.get_el
     templates = fixture('healthrule-helpers.rb')
-    extractor = Extractor.new el, runtime, :HealthRules, templates
+    extractor = Extractor.new el, runtime, :HealthRules, [templates]
 
     new_el = extractor.convert_roxml_obj el
 
@@ -97,7 +97,7 @@ EXP
       healthrule = roxml_root.healthRule
       roxml_root.healthRule = [healthrule]
 
-      extractor = Extractor.new roxml_root.healthRule, runtime, :HealthRules, ''
+      extractor = Extractor.new roxml_root.healthRule, runtime, :HealthRules
       new_objs = extractor.convert_roxml_objs
 
 

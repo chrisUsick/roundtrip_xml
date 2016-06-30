@@ -9,6 +9,7 @@ GEM
       tzinfo (~> 1.1)
     cleanroom (1.0.0)
     diff-lcs (1.2.5)
+    differ (0.1.2)
     docile (1.1.5)
     hashdiff (0.3.0)
     i18n (0.7.0)
@@ -62,6 +63,7 @@ PLATFORMS
 
 DEPENDENCIES
   cleanroom
+  differ
   hashdiff
   multiset
   nokogiri

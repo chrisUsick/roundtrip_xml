@@ -231,6 +231,37 @@ describe 'extractor' do
       expect(new_obj.criticalExecutionCriteria.entityAggregationScope.type).to eq 'NONE'
     end
 
+    it 'adds simple properties not defined on the template but defined on the obj' do
+      obj = Proc.new do
+        healthRule do
+          enabled true
+          description 'foo'
+          criticalExecutionCriteria do
+            entityAggregationScope do
+              type 'NONE'
+              value '0'
+            end
+          end
+        end
+      end
+      template = Proc.new do
+        define :Scope, :EntityAggregationScope do
+          type 'NONE'
+        end
+
+        define :BaseHealthrule, :HealthRule do
+          enabled true
+        end
+      end
+
+      runtime, roxml_obj, extractor = convert_roxml_obj_helper obj, template, :HealthRules
+      new_obj = extractor.convert_roxml_obj roxml_obj
+      expect(new_obj.class.class_name).to eq :HealthRules
+      expect(new_obj.healthRule[0].criticalExecutionCriteria.entityAggregationScope.class.class_name).to eq :Scope
+      expect(new_obj.healthRule[0].criticalExecutionCriteria.entityAggregationScope.value).to eq '0'
+
+    end
+
     it 'converts nested object to template with parameter' do
 
       obj = Proc.new do
@@ -379,13 +410,49 @@ describe 'extractor' do
       xml = fixture 'healthrules03.xml'
       runtime.populate_raw xml
       obj = runtime.fetch(:HealthRule).from_xml fixture('app-components.xml')
-      extractor = Extractor.new [obj], runtime, :HealthRule, fixture('_templates.rb')
+      extractor = Extractor.new [obj], runtime, :HealthRule, [fixture('_templates.rb')]
       new_obj = extractor.convert_roxml_objs
       components = new_obj[0].affectedEntitiesMatchCriteria.affectedBtMatchCriteria.applicationComponents.applicationComponent
       expect(components.size).to eq 19
       components.each do |c|
         expect(c).to be_an_instance_of String
       end
+    end
+
+    it 'diffs interpolated strings' do
+      obj = Proc.new do
+        type 'leaf thingy'
+        functionType 'VALUE'
+        value 'aa >= b'
+        isLiteralExpression 'false'
+        displayName 'null'
+        metricDefinition do
+          type 'LOGICAL_METRIC'
+          logicalMetricName 'the Average Response Time (ms)'
+        end
+      end
+
+      template = Proc.new do
+        define :BasicExpression, :MetricExpression, :metric_type, :op, :function, :metric_name do
+          _matcher :metric_name, /(.*)$/
+          type "#{metric_type} thingy"
+          functionType function
+          value "aa #{op} b"
+          isLiteralExpression 'false'
+          displayName 'null'
+          metricDefinition do
+            type 'LOGICAL_METRIC'
+            logicalMetricName "the #{metric_name}"
+          end
+        end
+      end
+
+      _, roxml_obj, extractor = convert_roxml_obj_helper obj, template, :MetricExpression
+      basic = extractor.convert_roxml_obj roxml_obj
+      expect(basic.function).to eq 'VALUE'
+      expect(basic.metric_type).to eq 'leaf'
+      expect(basic.op).to eq '>='
+      expect(basic.metric_name).to eq 'Average Response Time (ms)'
     end
   end
 end

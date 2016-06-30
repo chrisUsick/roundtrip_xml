@@ -153,7 +153,7 @@ describe 'dsl_runtime' do
     templates = fixture('healthrule-helpers.rb')
     runtime = DslRuntime.new
     runtime.populate_raw doc
-    actual = runtime.write_dsl doc, :HealthRules, :healthRule, templates
+    actual = runtime.write_dsl doc, :HealthRules, :healthRule, [templates]
 
     expect(actual.scan(/policyCondition :PolicyCondition2/).size).to eq 4
     expect(actual.scan(/warningExecutionCriteria :RegularExecutionCriteria/).size).to eq 7

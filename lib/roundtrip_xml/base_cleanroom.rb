@@ -96,4 +96,9 @@ class BaseCleanroom
       self.class.send(:expose, name)
     end
   end
+
+  def _matcher(accessor, matcher)
+    @el.class.plain_accessor accessor, matcher
+  end
+  expose :_matcher
 end

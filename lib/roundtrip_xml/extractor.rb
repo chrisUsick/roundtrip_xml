@@ -6,6 +6,7 @@ require 'set'
 require 'roundtrip_xml/utils'
 require 'multiset'
 require 'roundtrip_xml/roxml_subclass_helpers.rb'
+require 'differ'
 
 class Extractor
 
@@ -13,10 +14,11 @@ class Extractor
     @roxml_objs = roxml_objs
     @runtime = runtime
     @root_class = root_class
+    @definitions = {}
     if block_given?
-      @definitions = eval_definitions root_class, &block
+      eval_definitions root_class, &block
     else
-      @definitions = eval_definitions root_class, definitions
+      definitions.each {|defin| eval_definitions root_class, defin } if definitions
     end
   end
 
@@ -29,7 +31,7 @@ class Extractor
     end
     new_names = @runtime.instance_variable_get(:@classes).keys
     def_names = new_names - old_names
-    def_names.inject({}) do |out, name|
+    @definitions = def_names.inject(@definitions) do |out, name|
       clazz = @runtime.fetch(name)
       parent = get_root_class clazz
       obj = clazz.new
@@ -57,7 +59,14 @@ class Extractor
       h.delete '__class'
     end
     diffs = HashDiff.diff(obj_hash, def_hash).map do |diff|
-      ROXMLDiff.new diff[0], diff[1], from_hash(diff[2]), diff[3]
+      accessor_name = if diff[3].is_a?(String) && match = diff[3].match(/#{Utils::UNDEFINED_PARAM}:(\w*)/)
+                        match[1].to_sym
+                      end
+      if accessor_name && defin.class.plain_accessors.include?(accessor_name)
+        matcher = defin.class.plain_accessors(true)[accessor_name]
+      end
+      template_val = diff[3].is_a?(String) && accessor_name ? Utils::UndefinedParam.new(accessor_name, diff[3]) : diff[3]
+      ROXMLDiff.new diff[0], diff[1], from_hash(diff[2]), template_val, matcher
     end
 
     diffs
@@ -82,11 +91,11 @@ class Extractor
 
     defs.each do |defin|
       diffs = diff_definition(defin, obj)
-      if diffs.all? {|diff| diff.operation == '~' && (diff.template_val.is_a?(Utils::UndefinedParam) || diff.template_val == nil) }
+      if diffs.all? {|diff| diff.operation == '~' && (diff.template_val.is_a?(Utils::UndefinedParam) || diff.template_val == nil || interpolated_diff(diff)) }
         new_obj = defin.class.new
         param_values = diffs.inject({}) do |values, diff|
           name = diff.template_val ? diff.template_val.name : diff.key
-          values[name] = diff.obj_val
+          values[name] = interpolated_diff(diff) ? extract_interpolated_diff(diff) : diff.obj_val
           values
         end
         set_attributes new_obj, param_values
@@ -106,6 +115,16 @@ class Extractor
       end
     end
     obj
+  end
+
+  def interpolated_diff(diff)
+    diff.obj_val.is_a?(String) && diff.template_val.is_a?(Utils::UndefinedParam) && diff.template_val.original && diff.template_val.original.match(/#{Utils::UNDEFINED_PARAM}:/)
+  end
+
+  def extract_interpolated_diff(diff)
+    s_diff = Differ.diff_by_word(diff.obj_val, diff.template_val.original).to_s
+    value = s_diff.match(/(\{"\s*#{Utils::UNDEFINED_PARAM}:([\S]*)\s*" >> "(.*)"})/)[3]
+    value.strip.match(diff.matcher)[1]
   end
 
   def set_attributes(obj, params)
@@ -164,11 +183,12 @@ class Extractor
 end
 
 class ROXMLDiff
-  attr_reader :operation, :key, :obj_val, :template_val
-  def initialize(operation, key, obj_val, template_val)
+  attr_reader :operation, :key, :obj_val, :template_val, :matcher
+  def initialize(operation, key, obj_val, template_val, matcher = nil)
     @operation = operation
     @key = key.to_sym
     @obj_val = obj_val
     @template_val = template_val
+    @matcher = matcher
   end
 end

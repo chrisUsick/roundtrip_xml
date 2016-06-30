@@ -34,7 +34,7 @@ class DslRuntime
   end
 
   # @param block Proc This proc is passed each health rule and must return a string value which specifies the partition for it
-  def write_dsl(xml, root_class_name, root_method, helpers = '', &block)
+  def write_dsl(xml, root_class_name, root_method, helpers = nil, &block)
     roxml_root = fetch(root_class_name).from_xml xml
 
     extractor = Extractor.new roxml_root.send(root_method), self, root_class_name, helpers
@@ -83,10 +83,10 @@ class DslRuntime
 
   def evaluate_raw(dsl, root_class, templates = [], &block)
     cleanroom = RootCleanroom.new(fetch(root_class).new, self)
-    templates.each { |t| cleanroom.evaluate_file t }
-    if block_given?
-      cleanroom.evaluate &block
-    else
+      templates.each { |t| cleanroom.evaluate t }
+      if block_given?
+        cleanroom.evaluate &block
+      else
       cleanroom.evaluate dsl
     end
 

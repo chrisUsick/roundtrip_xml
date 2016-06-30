@@ -7,11 +7,16 @@ def name_to_sym_helper(name, lower_case = false)
     new_name.to_sym
 end
 module Utils
-  # UNDEFINED_PARAM = 'UNDEFINED_PARAM_VALUE'
+  UNDEFINED_PARAM = 'UNDEFINED_PARAM'.freeze
   class UndefinedParam
-    attr_reader :name
-    def initialize(name)
+    attr_reader :name, :original
+    def initialize(name, original = nil)
       @name = name
+      @original = original
+    end
+
+    def to_s
+      "#{Utils::UNDEFINED_PARAM}:#{@name}"
     end
   end
 
