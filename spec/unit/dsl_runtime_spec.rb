@@ -180,4 +180,18 @@ describe 'dsl_runtime' do
     expect(actual['complex'].scan(/healthRule do/).size).to eq 2
 
   end
+
+  context 'lifecycle callbacks' do
+    let(:runtime) {DslRuntime.new}
+    it 'calls `after_roxml_created` callback' do
+      allow(runtime).to receive(:trigger)
+      doc = fixture('refactorable-dsl.xml')
+      runtime.populate_raw doc
+      runtime.on :after_roxml_created do |roxml|
+        expect(roxml).to kind_of ROXML
+      end
+      runtime.write_dsl doc, :HealthRules, :healthRule
+      expect(runtime).to have_received(:trigger).with(:after_roxml_created, kind_of(ROXML))
+    end
+  end
 end

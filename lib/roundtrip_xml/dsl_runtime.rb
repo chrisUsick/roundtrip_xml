@@ -6,12 +6,15 @@ require 'roundtrip_xml/base_cleanroom'
 require 'roundtrip_xml/utils'
 require 'roundtrip_xml/sexp_dsl_builder'
 require 'roundtrip_xml/extractor'
+require 'roundtrip_xml/lifecycle_callbacks'
 require 'tree'
 require 'set'
 # Class which evaluates DSL and read XML files to populate the namespace with classes
 class DslRuntime
   include Utils
+  include LifecycleCallbacks
   def initialize()
+    super
     @classes = {}
     @root_classes = Set.new
   end
@@ -37,6 +40,7 @@ class DslRuntime
   def write_dsl(xml, root_class_name, root_method, helpers = nil, &block)
     roxml_root = fetch(root_class_name).from_xml xml
 
+    trigger :after_roxml_created, roxml_root
     extractor = Extractor.new roxml_root.send(root_method), self, root_class_name, helpers
 
     new_objs = extractor.convert_roxml_objs
