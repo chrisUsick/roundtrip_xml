@@ -201,7 +201,9 @@ class DslRuntime
 
   def self.load(path)
     file = File.open path, 'r'
-    Marshal.load file
+    obj = Marshal.load file
+    file.close
+    obj
   end
 end
 
