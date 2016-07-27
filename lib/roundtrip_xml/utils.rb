@@ -31,7 +31,7 @@ module Utils
       include ROXML
       include PlainAccessors
       xml_convention :dasherize
-      xml_name name
+      xml_name parent.respond_to?(:tag_name) ? parent.tag_name : name
 
       # by default a ROXML class isn't a sub class
       def self.subclass?
@@ -42,7 +42,7 @@ module Utils
       end
 
       def self.class_name
-        self.tag_name.is_a?(Symbol) ? self.tag_name : name_to_sym_helper(self.tag_name)
+        @class_name || name_to_sym_helper(self.tag_name)
       end
 
       def to_hash

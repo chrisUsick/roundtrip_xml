@@ -147,6 +147,7 @@ end
       end
 
       rule1, rule2 = res.get_el.healthRule
+      expect(res.get_el.to_xml.name).to eq 'health-rules'
       expect(rule1.name).to eq rule_name(1)
       expect(rule1.enabled).to be_truthy
       expect(rule2.name).to eq rule_name(2)
