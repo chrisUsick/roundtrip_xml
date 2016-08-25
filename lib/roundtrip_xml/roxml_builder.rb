@@ -54,6 +54,8 @@ class RoxmlBuilder
         new_attr_type = opts[:as]
         # add a new attribute with the array type.
         @root_class.xml_accessor name, opts.merge({as: [new_attr_type]})
+      else
+        add_child_to_node(node, name)
       end
     else
       @root_class.xml_accessor name, opts

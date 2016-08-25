@@ -20,6 +20,32 @@ describe 'RoxmlBuilder' do
     expect(b_attribute.array?).to be_truthy
   end
 
+  it 'makes an element an array when parsing it as a non-array first' do
+    xml = <<-XML
+<a-container>
+<a><b><foo>1</foo></b></a>
+<a><b><foo>2</foo><foo>3</foo></b></a>
+</a-container>
+    XML
+    builder = RoxmlBuilder.new(Nokogiri::XML(xml).root)
+    new_classes = builder.build_classes
+    foo_attribute = new_classes[:B].roxml_attrs.find {|a| a.name == 'foo'}
+    expect(foo_attribute.array?).to be_truthy
+  end
+
+  it 'makes an element an array when parsing it as a non-array second' do
+    xml = <<-XML
+<a-container>
+<a><b><foo>2</foo><foo>3</foo></b></a>
+<a><b><foo>1</foo></b></a>
+</a-container>
+    XML
+    builder = RoxmlBuilder.new(Nokogiri::XML(xml).root)
+    new_classes = builder.build_classes
+    foo_attribute = new_classes[:B].roxml_attrs.find {|a| a.name == 'foo'}
+    expect(foo_attribute.array?).to be_truthy
+  end
+
 
   it "doesn't make attr array when encountered in different contexts" do
     xml = <<-XML
