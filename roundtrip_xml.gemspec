@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'roundtrip_xml'
-  s.version     = '1.0.5'
+  s.version     = '1.1.0'
   s.date        = '2016-03-17'
   s.summary     = "DSL which learns from XML"
   s.description = "A DSL that reads existing XML, generating an internal schema and using it to create a (somewhat) type safe DSL"
