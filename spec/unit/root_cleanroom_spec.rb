@@ -154,4 +154,21 @@ end
       expect(rule2.enabled).to be_falsey
     end
   end
+  # describe 'template extending multiple parents' do
+  #   it 'extends multiple parents' do
+  #     xml = fixture 'healthrules02.xml'
+  #     runtime = DslRuntime.new
+  #     runtime.populate_raw xml
+  #
+  #     runtime.evaluate_raw nil, :HealthRules do
+  #       define :LeafCondition, [:Condition1, :Condition2], :type_value do
+  #         type 'leaf'
+  #         conditionValueType 'ABSOLUTE'
+  #       end
+  #     end
+  #
+  #     actual = runtime.write_dsl xml, :HealthRules, :healthRule, []
+  #     expect(actual).to be_truthy
+  #   end
+  # end
 end

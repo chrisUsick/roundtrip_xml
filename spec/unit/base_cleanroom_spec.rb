@@ -37,4 +37,21 @@ foo 'bar'
     expect(actual.c).to eq 2
     expect(actual.foo).to eq 'bar'
   end
+
+  describe '_metadata' do
+    it 'stores metadata' do
+      xml = fixture 'healthrules01.xml'
+      runtime = DslRuntime.new
+      runtime.populate_raw xml
+
+      dsl = <<-DSL
+healthRule do
+  _metadata runbook: 'FOO'
+end
+      DSL
+
+      actual = runtime.evaluate_raw(dsl, :HealthRules).get_el.healthRule
+      expect(actual._metadata[:runbook]).to eq 'FOO'
+    end
+  end
 end

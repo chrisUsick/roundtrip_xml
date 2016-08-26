@@ -57,6 +57,11 @@ class BaseCleanroom
     self.class.send(:define_method, name, &block)
   end
 
+  def _metadata(hash)
+    get_el._metadata = get_el._metadata.merge hash
+  end
+  expose :_metadata
+
   def expand(clazz, &block)
     plain_accessors = @el.class.plain_accessors
     @value_holder ||= {}

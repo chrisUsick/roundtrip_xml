@@ -30,6 +30,10 @@ module Utils
     Class.new(parent) do
       include ROXML
       include PlainAccessors
+      attr_writer :_metadata
+      def _metadata
+        @_metadata || {}
+      end
       xml_convention :dasherize
       xml_name parent.respond_to?(:tag_name) ? parent.tag_name : name
 
