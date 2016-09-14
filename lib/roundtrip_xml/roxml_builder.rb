@@ -35,6 +35,8 @@ class RoxmlBuilder
         child_class_name = name_to_sym child.name
         add_accessor child_name, default_opts.merge({as: new_classes[child_class_name]}), @root
         @generated_classes.merge!(new_classes)
+      elsif child.type == Nokogiri::XML::Node::TEXT_NODE && child.to_s.strip != ''
+        add_accessor name_to_sym(@root.name, true), {from: :content}, @root
       end
     end
 

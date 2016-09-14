@@ -77,6 +77,28 @@ describe 'RoxmlBuilder' do
     expect(doc.xpath('b/foo/@attr-2')[0].value).to eq('2')
   end
 
+  it 'creates objects with attributes and text content' do
+    xml = <<-XML
+<a attr-1="1"> <b><foo-bar attr-2="2">3</foo-bar></b>
+    XML
+    builder = RoxmlBuilder.new(Nokogiri::XML(xml).root)
+    new_classes = builder.build_classes
+    a = new_classes[:A].new
+    fooBar = new_classes[:FooBar].new
+    expect(a.respond_to? :attr1).to be_truthy
+    expect(fooBar.respond_to? :attr2).to be_truthy
+    expect(fooBar.respond_to? :fooBar).to be_truthy
+    a.attr1 = "1"
+    fooBar.attr2 = "2"
+    fooBar.fooBar = '3'
+    a.b = new_classes[:B].new
+    a.b.fooBar = fooBar
+    doc = a.to_xml
+    expect(doc.xpath('@attr-1')[0].value).to eq('1')
+    expect(doc.xpath('b/foo-bar/@attr-2')[0].value).to eq('2')
+    expect(doc.xpath('b/foo-bar')[0].children[0].to_xml).to eq('3')
+  end
+
 
   it 'foo' do
     class Quux
