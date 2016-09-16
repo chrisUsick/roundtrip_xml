@@ -54,4 +54,40 @@ end
       expect(actual._metadata[:runbook]).to eq 'FOO'
     end
   end
+
+  describe 'array of object elements' do
+    it 'works' do
+      xml = <<-XML
+<affected-bt-match-criteria>
+                <type>SPECIFIC</type>
+                <business-transactions>
+                    <business-transaction application-component="web">GET - /v2/players/weekprojectedstats</business-transaction>
+                    <business-transaction application-component="web">GET - /v2/game/state</business-transaction>
+                    <business-transaction application-component="web">GET - /v2/league/transactions</business-transaction>
+</business-transactions>
+</affected-bt-match-criteria>
+      XML
+      runtime = DslRuntime.new
+      runtime.populate_raw xml
+      dsl = <<RUBY
+type 'SPECIFIC'
+businessTransactions do
+  businessTransaction do
+    applicationComponent 'web'
+    businessTransaction_content 'GET - /v2/players/weekprojectedstats'
+  end
+  businessTransaction do
+    applicationComponent 'web'
+    businessTransaction_content 'GET - /v2/game/state'
+  end
+  businessTransaction do
+    applicationComponent 'web'
+    businessTransaction_content 'GET - /v2/league/transactions'
+  end
+end
+RUBY
+      actual = runtime.evaluate_raw(dsl, :AffectedBtMatchCriteria).get_el
+      expect(actual.businessTransactions.businessTransaction.size).to eq(3)
+    end
+  end
 end

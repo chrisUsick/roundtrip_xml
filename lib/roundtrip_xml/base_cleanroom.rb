@@ -15,22 +15,23 @@ class BaseCleanroom
     get_el.attributes.each do |attr|
       method_name = attr.accessor.to_sym
       create_method(method_name) do |name = nil, &block|
+        corrected_attr = get_el.attributes.select{|a| a.accessor == attr.accessor}[0]
         if !block.nil?
-          clazz = name ? @runtime.fetch(name) : attr.sought_type
+          clazz = name ? @runtime.fetch(name) : corrected_attr.sought_type
           value = expand(clazz, &block)
         elsif name
           value = name
         else
-          return get_el.send(attr.accessor.to_sym)
+          return get_el.send(corrected_attr.accessor.to_sym)
         end
 
-        if attr.array?
-          array_attr = get_el.send(attr.accessor.to_sym)
-          array_attr ||= attr.default
+        if corrected_attr.array?
+          array_attr = get_el.send(corrected_attr.accessor.to_sym)
+          array_attr ||= corrected_attr.default
           array_attr << value
-          get_el.send(attr.setter.to_sym, array_attr)
+          get_el.send(corrected_attr.setter.to_sym, array_attr)
         else
-          get_el.send(attr.setter.to_sym, value) unless get_el.send(attr.accessor.to_sym)
+          get_el.send(corrected_attr.setter.to_sym, value) unless get_el.send(corrected_attr.accessor.to_sym)
         end
       end
       self.class.send(:expose, method_name)
