@@ -110,6 +110,30 @@ EXP
         expect(dsl).to include "applicationComponent '#{name}'"
       end
 
-    end
+  end
+
+  it 'gets the metadata' do
+    runtime = DslRuntime.new
+    runtime.populate_from_file fixture_path('refactorable-dsl.xml')
+    dsl = <<-RUBY
+healthRule do
+  _metadata foo: 'bar'
+  name 'health rule 1'
+end
+    RUBY
+    res = runtime.evaluate_raw dsl, :HealthRules
+    el = res.get_el
+    templates = fixture('healthrule-helpers.rb')
+    extractor = Extractor.new el, runtime, :HealthRules, [templates]
+
+    new_el = extractor.convert_roxml_obj el
+
+    builder = SexpDslBuilder.new new_el, runtime
+
+    actual = builder.write_roxml_obj new_el
+
+    expect(actual).to match("_metadata :foo => 'bar'")
+    expect(actual).to match("name 'health rule 1'")
+  end
 
 end

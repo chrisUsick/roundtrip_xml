@@ -1,7 +1,7 @@
 PATH
   remote: ../
   specs:
-    roundtrip_xml (1.1.1)
+    roundtrip_xml (1.1.2)
       cleanroom (~> 1.0)
       differ (~> 0.1)
       hashdiff (~> 0.3)

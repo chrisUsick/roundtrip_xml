@@ -34,12 +34,21 @@ EOF
   def initialize(roxml_obj, runtime)
     @roxml_obj = roxml_obj
     self.runtime = runtime
+    @parser = RubyParser.new
+  end
+
+  def create_hash_sexp(hash)
+    @parser.process(hash.to_s).to_a
   end
 
   def create_sexp_for_roxml_obj(obj, root_method = nil)
     is_subclass = obj.class.subclass?
     subclass_value = is_subclass ? [:lit, obj.class.class_name] : nil
     accessors = []
+    # metadata
+    if root_method && obj._metadata && !obj._metadata.empty?
+      accessors << [:call, nil, :_metadata, create_hash_sexp(obj._metadata)]
+    end
     obj.attributes.each do |attr|
       val = obj.send attr.accessor
       next unless val
