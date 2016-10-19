@@ -88,6 +88,7 @@ class Extractor
 
   def convert_roxml_obj (obj)
     name = obj.class.class_name
+    old_metadata = obj._metadata
     defs = @definitions[name]
 
     defs.each do |defin|
@@ -101,6 +102,7 @@ class Extractor
         end
         set_attributes new_obj, param_values
         # return convert_roxml_obj new_obj
+        add_old_metadata new_obj, old_metadata, defin._metadata
         obj = new_obj
       end
     end if defs
@@ -116,6 +118,18 @@ class Extractor
       end
     end
     obj
+  end
+
+  def add_old_metadata(obj, old_metadata, current_metadata)
+    # only keep the keys that don't exist in the template's metadata (current)
+    # that metadata will be availabled when evaluate the roxml object
+    # obj._metadata = old_metadata.merge current_metadata
+    diff_keys = old_metadata.keys.inject([]) do |out, key|
+      out << key unless current_metadata.key? key
+      out
+    end
+    new_metadata = old_metadata.delete_if {|k, _| !diff_keys.include? k}
+    obj._metadata = new_metadata
   end
 
   def interpolated_diff(diff)

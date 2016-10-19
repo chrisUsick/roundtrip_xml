@@ -346,9 +346,6 @@ describe 'extractor' do
       end
     end
 
-
-
-
     it 'matches multiple parameters' do
       obj = Proc.new do
         type 'leaf'
@@ -453,6 +450,45 @@ describe 'extractor' do
       expect(basic.metric_type).to eq 'leaf'
       expect(basic.op).to eq '>='
       expect(basic.metric_name).to eq 'Average Response Time (ms)'
+    end
+
+    it 'adds the metadata of the old object when template does not have any' do
+      obj = Proc.new do
+        _metadata foo: 1
+        name 'Health rule 1'
+        isDefault true
+      end
+
+      template = Proc.new do
+        define :BasicHealthrule, :HealthRule do
+          isDefault true
+        end
+      end
+      _, roxml_obj, extractor = convert_roxml_obj_helper obj, template, :HealthRule
+      actual = extractor.convert_roxml_obj roxml_obj
+      expect(actual._metadata[:foo]).to eq(1)
+      expect(actual.class.class_name).to eq(:BasicHealthrule)
+    end
+
+    it 'merges metadata for templated object, prefering original objects metadata' do
+      obj = Proc.new do
+        _metadata foo: 1, baz: 3
+        name 'Health rule 1'
+        isDefault true
+      end
+
+      template = Proc.new do
+        define :BasicHealthrule, :HealthRule do
+          _metadata foo: 'X', bar: 2
+          isDefault true
+        end
+      end
+      _, roxml_obj, extractor = convert_roxml_obj_helper obj, template, :HealthRule
+      actual = extractor.convert_roxml_obj roxml_obj
+      expect(actual._metadata[:foo]).to eq(nil)
+      expect(actual._metadata[:bar]).to eq(nil)
+      expect(actual._metadata[:baz]).to eq(3)
+      expect(actual.class.class_name).to eq(:BasicHealthrule)
     end
   end
 

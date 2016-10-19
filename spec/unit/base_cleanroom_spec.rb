@@ -53,6 +53,67 @@ end
       actual = runtime.evaluate_raw(dsl, :HealthRules).get_el.healthRule
       expect(actual._metadata[:runbook]).to eq 'FOO'
     end
+
+    it 'loads metadata for a subclass' do
+      xml = fixture 'healthrules01.xml'
+      runtime = DslRuntime.new
+      runtime.populate_raw xml
+
+      dsl = <<-RUBY
+define :BaseHealthrule, :HealthRule do
+  isDefault true
+end
+healthRule :BaseHealthrule do
+  _metadata runbook: 'FOO'
+end
+      RUBY
+
+      actual = runtime.evaluate_raw(dsl, :HealthRules).get_el.healthRule
+      expect(actual._metadata[:runbook]).to eq 'FOO'
+      expect(actual.isDefault).to be_truthy
+    end
+
+    it 'merges metadata on template and object' do
+      xml = fixture 'healthrules01.xml'
+      runtime = DslRuntime.new
+      runtime.populate_raw xml
+
+      dsl = <<-RUBY
+define :BaseHealthrule, :HealthRule do
+  _metadata foo: 1, baz: 3
+  isDefault true
+end
+healthRule :BaseHealthrule do
+  _metadata foo: 2, bar: 2
+end
+      RUBY
+
+      actual = runtime.evaluate_raw(dsl, :HealthRules).get_el.healthRule
+      expect(actual._metadata[:foo]).to eq 1
+      expect(actual._metadata[:bar]).to eq 2
+      expect(actual._metadata[:baz]).to eq 3
+      expect(actual.isDefault).to be_truthy
+    end
+
+    it 'applies metadata that is only present on the template' do
+      xml = fixture 'healthrules01.xml'
+      runtime = DslRuntime.new
+      runtime.populate_raw xml
+
+      dsl = <<-RUBY
+define :BaseHealthrule, :HealthRule do
+  _metadata foo: 1, baz: 3
+  isDefault true
+end
+healthRule :BaseHealthrule do
+end
+      RUBY
+
+      actual = runtime.evaluate_raw(dsl, :HealthRules).get_el.healthRule
+      expect(actual._metadata[:foo]).to eq 1
+      expect(actual._metadata[:baz]).to eq 3
+      expect(actual.isDefault).to be_truthy
+    end
   end
 
   describe 'array of object elements' do
