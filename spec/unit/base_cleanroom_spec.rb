@@ -74,20 +74,21 @@ type 'SPECIFIC'
 businessTransactions do
   businessTransaction do
     applicationComponent 'web'
-    businessTransaction_content 'GET - /v2/players/weekprojectedstats'
+    businessTransaction 'GET - /v2/players/weekprojectedstats'
   end
   businessTransaction do
     applicationComponent 'web'
-    businessTransaction_content 'GET - /v2/game/state'
+    businessTransaction 'GET - /v2/game/state'
   end
   businessTransaction do
     applicationComponent 'web'
-    businessTransaction_content 'GET - /v2/league/transactions'
+    businessTransaction 'GET - /v2/league/transactions'
   end
 end
 RUBY
       actual = runtime.evaluate_raw(dsl, :AffectedBtMatchCriteria).get_el
       expect(actual.businessTransactions.businessTransaction.size).to eq(3)
+      actual.businessTransactions.businessTransaction.each {|bt| expect(bt).to respond_to(:businessTransaction)}
     end
   end
 end

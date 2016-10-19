@@ -23,14 +23,15 @@ class Extractor
   end
 
   def eval_definitions(root_class, str = nil, &block)
-    old_names = @runtime.instance_variable_get(:@classes).keys
     if block_given?
       @runtime.evaluate_raw '', root_class, &block
     else
       @runtime.evaluate_raw str, root_class
     end
-    new_names = @runtime.instance_variable_get(:@classes).keys
-    def_names = new_names - old_names
+    def_names = @runtime.instance_variable_get(:@classes).inject([]) do |out, (name, clazz)|
+      out << name if clazz.subclass?
+      out
+    end
     @definitions = def_names.inject(@definitions) do |out, name|
       clazz = @runtime.fetch(name)
       parent = get_root_class clazz

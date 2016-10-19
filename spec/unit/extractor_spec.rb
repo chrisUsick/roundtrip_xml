@@ -455,6 +455,47 @@ describe 'extractor' do
       expect(basic.metric_name).to eq 'Average Response Time (ms)'
     end
   end
+
+  describe '#eval_definitions' do
+    it 'identifies definitions once they are already in the dsl' do
+      obj = Proc.new do
+        type 'leaf thingy'
+        functionType 'VALUE'
+        value 'aa >= b'
+        isLiteralExpression 'false'
+        displayName 'null'
+        metricDefinition do
+          type 'LOGICAL_METRIC'
+          logicalMetricName 'the Average Response Time (ms)'
+        end
+      end
+
+      template = Proc.new do
+        define :BasicExpression, :MetricExpression, :metric_type, :op, :function, :metric_name do
+          _matcher :metric_name, /(.*)$/
+          type "#{metric_type} thingy"
+          functionType function
+          value "aa #{op} b"
+          isLiteralExpression 'false'
+          displayName 'null'
+          metricDefinition do
+            type 'LOGICAL_METRIC'
+            logicalMetricName "the #{metric_name}"
+          end
+        end
+      end
+
+      runtime = DslRuntime.new
+      runtime.populate_raw fixture('healthrules02.xml')
+
+      roxml_obj = runtime.evaluate_raw('', :MetricExpression, &obj).get_el
+      runtime.evaluate_raw '', :MetricExpression, &template
+      extractor = Extractor.new nil, runtime, :HealthRules, &template
+
+      basic = extractor.convert_roxml_obj roxml_obj
+      expect(basic).to be_an_instance_of(runtime.fetch(:BasicExpression))
+    end
+  end
 end
 
 
